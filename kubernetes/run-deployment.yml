@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: flask
+  name: canisue
 spec:
   selector:
     matchLabels:
-      app: flask
-  replicas: 1
+      app: canisue
+  replicas: 2
   template:
     metadata:
       labels:
-        app: flask
+        app: canisue
     spec:
       containers:
-      - name: flask
-        image: <YOUR DOCKER USERNAME>/flask-template:v1
+      - name: canisue
+        image: junanqu/flask-template:v1
         env:
         - name: APP_SETTINGS
           value: config.DevelopmentConfig
