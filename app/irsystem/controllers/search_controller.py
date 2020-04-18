@@ -9,9 +9,11 @@ net_id = "jq77, zs92, ijp9, mlc294, ns739"
 @irsystem.route('/', methods=['GET'])
 def search():
     query = request.args.get('search')
+    print(query)
     if not query:
         data = []
-        output_message = ''
+        output_message = 'OUTPUT RESULT IS NONE'
+        data = range(10)
     else:
         output_message = "Your search: " + query
         data = range(5)
