@@ -42,8 +42,8 @@ def rank_cases(query:str, stem_tokens=False):
 
     file_name = "data/output_{}.json".format(query.replace(" ", "-"))
 
-    # pre-load data if it has already been queried
     if os.path.exists(file_name):
+        # pre-load data if it has already been queried
         with open(file_name, 'r') as f:
             cases = json.load(f)
     else:
@@ -71,15 +71,14 @@ def rank_cases(query:str, stem_tokens=False):
 
     # enforce case ordering
     case_names = [case['name'] for case in cases]
-
     case_texts = [case['casebody']['data']['head_matter'].replace("\n", " ") for case in cases]
         
-    case_opinions = []
-    for opinions in [case['casebody']['data']['opinions'] for case in cases]:
-        for opinion in opinions:
-            if opinion['type'] == "majority":
-                case_opinions.append(opinion['text'].replace("\n", " "))
-                break
+    # case_opinions = []
+    # for opinions in [case['casebody']['data']['opinions'] for case in cases]:
+    #     for opinion in opinions:
+    #         if opinion['type'] == "majority":
+    #             case_opinions.append(opinion['text'].replace("\n", " "))
+    #             break
 
     ## STEP 3: assign similarity scores to cases ##
 
@@ -116,4 +115,5 @@ def rank_cases(query:str, stem_tokens=False):
 
 
 if __name__ == "__main__":
-    print(rank_cases("fence built on my property"))
+    with open('output.json', 'w') as f:
+        json.dump(rank_cases("fence built on my property"), f)
