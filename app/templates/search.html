@@ -55,7 +55,7 @@
         <div class="container" style="text-align: center; ">
             <h1 style="white-space: pre;">{{output_message}}</h1>
             <div class="feature-inner row">
-                {% for d in data %}
+                {% for d in range(len(data)) %}
                 <div class="feature-item">
                     <i class="ti-crown"></i>
                     <h4>{{d}}</h4>

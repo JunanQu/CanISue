@@ -14,10 +14,6 @@ net_id = "jq77, zs92, ijp9, mlc294, ns739"
 
 # title, id, selftext, url, created_utc e60m7
 
-num_posts = len(data)
-index_to_posts_id = {index: post_id for index, post_id in enumerate(data)}
-
-
 def build_vectorizer(max_features=5000, stop_words="english", max_df=0.8, min_df=10, norm='l2'):
     tfidf_vec = TfidfVectorizer(stop_words=stop_words, norm=norm,
                                 max_df=max_df, min_df=min_df, max_features=max_features)
@@ -42,7 +38,7 @@ def search():
     if not query:
         res = []
         output_message = ''
-        return render_template('search.html', name=project_name, netid=net_id, output_message=output_message, data=output)
+        return render_template('search.html', name=project_name, netid=net_id, output_message=output_message, data=res)
     else:
         # =====Reddit cos processing START=========
         with open("../subreddit_op_scrape.json") as f:
