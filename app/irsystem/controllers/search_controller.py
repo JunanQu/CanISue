@@ -69,4 +69,4 @@ def search():
                 n=len(res))
 
         output_message = output_message_1+' \n '+output_message_2
-        return render_template('search.html', name=project_name, netid=net_id, output_message=output_message, data=res)
+        return render_template('search.html', name=project_name, netid=net_id, output_message=output_message, data=res[:3])
