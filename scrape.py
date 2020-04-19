@@ -38,4 +38,20 @@ def get_all_subreddit_posts(subreddit='legaladvice'):
   with open('subreddit_op_scrape.json', 'w') as f:
       f.write(json.dumps(ops))
 
-get_all_subreddit_posts()
+def split_data(big_json_path, folder = 'data/', partitions = 20):
+  data = None
+  with open('data/subreddit_op_scrape.json', 'r') as f:
+    data = json.loads(f.read())
+
+  target_size = len(data) // partitions
+
+  split_idx = 0
+  while len(data) >= target_size:
+    with open('data/legaladvice' + str(split_idx) + '.json', 'w') as f:
+      f.write(json.dumps(dict(list(data.items())[:target_size])))
+      data = dict(list(data.items())[target_size:])
+    print(split_idx)
+    split_idx += 1
+
+# split_data('data/subreddit_op_scrape.json', partitions = 15)
+# get_all_subreddit_posts()
