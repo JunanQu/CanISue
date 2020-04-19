@@ -41,7 +41,7 @@ def search():
         return render_template('search.html', name=project_name, netid=net_id, output_message=output_message, data=res)
     else:
         # =====Reddit cos processing START=========
-        with open("../subreddit_op_scrape.json") as f:
+        with open("app/irsystem/controllers/legaladvicesample.json") as f:
             data = json.loads(f.readlines()[0])
         # title, id, selftext, url, created_utc e60m7
         num_posts = len(data)
