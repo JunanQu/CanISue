@@ -1,4 +1,10 @@
 
+.case{
+  border-color: #000;
+  border-width: 1px;
+  border-style: solid;
+}
+
 @media (min-width:400px){
 .global-search {
 padding: 20px 0;
@@ -2859,3 +2865,4 @@ body.mobile-nav-active #mobile-nav-toggle {
         transition: all 0.3s ease 0s; }
 
 /*# sourceMappingURL=main.css.map */
+
