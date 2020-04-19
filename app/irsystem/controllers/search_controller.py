@@ -61,12 +61,19 @@ def search():
         for k in range(10):
             res.append(data[index_to_posts_id[sim_posts[k][1]]])
          # =====Reddit cos processing END=========
-        output_message_1 = "Your search: " + query
-        if(len(res) >= 3):
-            output_message_2 = 'Here are the top 3 related cases'
-        else:
-            output_message_2 = 'Here are the top {n:.0f} related cases'.format(
-                n=len(res))
+         # =====Processing results================
+        for i in range(3):
+            post = res[i]
+            if len(post['selftext']) > 500:
+                post['selftext'] = post['selftext'][0:500] + '...'
+        # output_message_1 = "Your search: " + query
+        # output_message_2 = "Here's what other people have experienced:"
+        # if(len(res) >= 3):
+        #     output_message_2 = 'Here are the top 3 related cases'
+        # else:
+        #     output_message_2 = 'Here are the top {n:.0f} related cases'.format(
+        #         n=len(res))
 
-        output_message = output_message_1+' \n '+output_message_2
+        # output_message = output_message_1+' \n '+output_message_2
+        output_message = "Past discussions on '" + query + "':"
         return render_template('search.html', name=project_name, netid=net_id, output_message=output_message, data=res[:3])
