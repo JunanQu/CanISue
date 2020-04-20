@@ -84,7 +84,8 @@ def rank_cases(query:str, stem_tokens=False):
 
     # compute tf-idf scores
     if stem_tokens:
-         vec = TfidfVectorizer(tokenizer=tokenize, 
+        stemmer = PorterStemmer()
+        vec = TfidfVectorizer(tokenizer=tokenize, 
                         min_df=.05, 
                         max_df=0.8, 
                         max_features=5000, 
