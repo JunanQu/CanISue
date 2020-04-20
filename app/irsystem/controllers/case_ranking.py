@@ -86,13 +86,13 @@ def rank_cases(query:str, stem_tokens=False):
     if stem_tokens:
         stemmer = PorterStemmer()
         vec = TfidfVectorizer(tokenizer=tokenize, 
-                        min_df=.05, 
+                        min_df=.01, 
                         max_df=0.8, 
                         max_features=5000, 
                         stop_words=[stemmer.stem(item) for item in ENGLISH_STOP_WORDS], 
                         norm='l2')
     else:
-        vec = TfidfVectorizer(min_df=.05, 
+        vec = TfidfVectorizer(min_df=.01, 
                         max_df=0.8, 
                         max_features=5000, 
                         stop_words='english', 
@@ -117,4 +117,4 @@ def rank_cases(query:str, stem_tokens=False):
 
 if __name__ == "__main__":
     with open('output.json', 'w') as f:
-        json.dump(rank_cases("fence built on my property"), f)
+        json.dump(rank_cases("employer fired me for age discrimination"), f)
