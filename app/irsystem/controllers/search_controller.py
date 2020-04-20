@@ -5,6 +5,9 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from . import *
 from app.irsystem.models.helpers import *
 from app.irsystem.models.helpers import NumpyEncoder as NumpyEncoder
+import os
+# print(os.getcwd())
+from app.irsystem.controllers.case_ranking import rank_cases
 
 project_name = "Team Rob's Chili"
 net_id = "jq77, zs92, ijp9, mlc294, ns739"
@@ -61,6 +64,10 @@ def search():
         for k in range(10):
             res.append(data[index_to_posts_id[sim_posts[k][1]]])
          # =====Reddit cos processing END=========
+         # =====CaseLaw Retrieval=====
+        caselaw = rank_cases(query)
+        caseresults = caselaw[0:5]
+        print(len(caselaw))
          # =====Processing results================
         for i in range(3):
             post = res[i]
@@ -75,5 +82,6 @@ def search():
         #         n=len(res))
 
         # output_message = output_message_1+' \n '+output_message_2
+        caselaw_message = "Historical precedences on '" + query + "':"
         output_message = "Past discussions on '" + query + "':"
-        return render_template('search.html', name=project_name, netid=net_id, output_message=output_message, data=res[:3])
+        return render_template('search.html', name=project_name, netid=net_id, output_message=output_message, data=res[:3], casedata = caseresults, caselaw_message = caselaw_message)
