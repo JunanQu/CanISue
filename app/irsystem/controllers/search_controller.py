@@ -44,50 +44,50 @@ def search():
         print('no query')
         return render_template('search.html', name=project_name, netid=net_id, output_message=output_message, data=res)
     else:
-        # # =====Reddit cos processing START=========
-        # with open("app/irsystem/controllers/legaladvicesample.json") as f:
-        #     data = json.loads(f.readlines()[0])
-        # # title, id, selftext, url, created_utc e60m7
-        # print('loaded reddit data')
-        # num_posts = len(data)
-        # index_to_posts_id = {index: post_id for index,
-        #                      post_id in enumerate(data)}
-        # print('created index')
-        # n_feats = 5000
-        # # doc_by_vocab = np.empty([len(data)+1, n_feats])
-        # print('initialize numpy array')
-        # tfidf_vec = build_vectorizer(n_feats)
-        # print("initialize vectorizer")
+        # =====Reddit cos processing START=========
+        with open("app/irsystem/controllers/legaladvicesample.json") as f:
+            data = json.loads(f.readlines()[0])
+        # title, id, selftext, url, created_utc e60m7
+        print('loaded reddit data')
+        num_posts = len(data)
+        index_to_posts_id = {index: post_id for index,
+                             post_id in enumerate(data)}
+        print('created index')
+        n_feats = 5000
+        # doc_by_vocab = np.empty([len(data)+1, n_feats])
+        print('initialize numpy array')
+        tfidf_vec = build_vectorizer(n_feats)
+        print("initialize vectorizer")
 
-        # # d_array = [str(data[d]['selftext'])+str(data[d]['title']) for d in data]
-        # d_array = []
-        # for d in data:
-        #     s = str(data[d]['selftext'])+str(data[d]['title'])
-        #     d_array.append(s)
+        # d_array = [str(data[d]['selftext'])+str(data[d]['title']) for d in data]
+        d_array = []
+        for d in data:
+            s = str(data[d]['selftext'])+str(data[d]['title'])
+            d_array.append(s)
 
-        # print("built d_array")
-        # d_array.append(query)
-        # print("concatenated text and query")
-        # fit_vec = tfidf_vec.fit_transform(d_array)
-        # print('fit_transform')
-        # # print(fit_vec)
-        # fit_vec = fit_vec.todense()
-        # print('to dense done')
-        # doc_by_vocab = fit_vec.toarray()
-        # print('to array')
-        # sim_posts = []
-        # for post_index in range(num_posts):
-        #     score = get_sim(doc_by_vocab[post_index], doc_by_vocab[num_posts])
-        #     sim_posts.append((score, post_index))
-        # print('calculated similarities')
-        # sim_posts.sort(key=lambda x: x[0], reverse=True)
-        # print('sorted similarities')
-        # res = []
-        # for k in range(10):
-        #     res.append(data[index_to_posts_id[sim_posts[k][1]]])
-        # print('added results')
-        # # =====Reddit cos processing END=========
-        # print('retrieved reddit cases')
+        print("built d_array")
+        d_array.append(query)
+        print("concatenated text and query")
+        fit_vec = tfidf_vec.fit_transform(d_array)
+        print('fit_transform')
+        # print(fit_vec)
+        fit_vec = fit_vec.todense()
+        print('to dense done')
+        doc_by_vocab = np.array(fit_vec)
+        print('to array')
+        sim_posts = []
+        for post_index in range(num_posts):
+            score = get_sim(doc_by_vocab[post_index], doc_by_vocab[num_posts])
+            sim_posts.append((score, post_index))
+        print('calculated similarities')
+        sim_posts.sort(key=lambda x: x[0], reverse=True)
+        print('sorted similarities')
+        res = []
+        for k in range(10):
+            res.append(data[index_to_posts_id[sim_posts[k][1]]])
+        print('added results')
+        # =====Reddit cos processing END=========
+        print('retrieved reddit cases')
         # =====CaseLaw Retrieval=====
         print('begin caselaw retrieval')
         caselaw = rank_cases(query)
@@ -95,10 +95,10 @@ def search():
         print(len(caselaw))
         # =====Processing results================
         print('completed caselaw retrieval')
-        # for i in range(3):
-        #     post = res[i]
-        #     if len(post['selftext']) > 500:
-        #         post['selftext'] = post['selftext'][0:500] + '...'
+        for i in range(3):
+            post = res[i]
+            if len(post['selftext']) > 500:
+                post['selftext'] = post['selftext'][0:500] + '...'
         # output_message_1 = "Your search: " + query
         # output_message_2 = "Here's what other people have experienced:"
         # if(len(res) >= 3):
@@ -111,4 +111,4 @@ def search():
         caselaw_message = "Historical precedences on '" + query + "':"
         output_message = "Past discussions on '" + query + "':"
         print('rendering template..')
-        return render_template('search.html', name=project_name, netid=net_id, output_message=output_message, data=None, casedata=caseresults, caselaw_message=caselaw_message)
+        return render_template('search.html', name=project_name, netid=net_id, output_message=output_message, data=res[:3], casedata=caseresults, caselaw_message=caselaw_message)
