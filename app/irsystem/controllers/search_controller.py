@@ -63,11 +63,10 @@ def search():
         d_array = []
         for d in data:
             s = str(data[d]['selftext'])+str(data[d]['title'])
-            print("concat strings success")
             d_array.append(s)
         
         print("built d_array")
-        vec = np.concatenate((d_array,[query]))
+        vec = d_array.append(query)
         print("concatenated text and query")
         doc_by_vocab = tfidf_vec.fit_transform(vec).toarray()
         print('fit_transform')
