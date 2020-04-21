@@ -58,7 +58,14 @@ def search():
         print('initialize numpy array')
         tfidf_vec = build_vectorizer(n_feats)
         print("initialize vectorizer")
-        d_array = [str(data[d]['selftext'])+str(data[d]['title']) for d in data]
+        
+        # d_array = [str(data[d]['selftext'])+str(data[d]['title']) for d in data]
+        d_array = []
+        for d in data:
+            s = str(data[d]['selftext'])+str(data[d]['title'])
+            print("concat strings success")
+            d_array.append(s)
+        
         print("built d_array")
         vec = np.concatenate((d_array,[query]))
         print("concatenated text and query")
