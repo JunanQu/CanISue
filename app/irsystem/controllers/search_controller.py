@@ -13,7 +13,7 @@ project_name = "Team Rob's Chili"
 net_id = "jq77, zs92, ijp9, mlc294, ns739"
 
 # with open("app/irsystem/controllers/legaladvicesample.json") as f:
-with open("app/irsystem/controllers/legaladvicesmalljson") as f:
+with open("data/legaladvicesmall.json") as f:
     data = json.loads(f.readlines()[0])
 
 # =====REDDIT COSINE======
