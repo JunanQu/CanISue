@@ -17,12 +17,6 @@ net_id = "jq77, zs92, ijp9, mlc294, ns739"
 
 # title, id, selftext, url, created_utc e60m7
 
-def build_vectorizer(max_features=5000, stop_words="english", max_df=0.8, min_df=10, norm='l2'):
-    tfidf_vec = TfidfVectorizer(stop_words=stop_words, norm=norm,
-                                max_df=max_df, min_df=min_df, max_features=max_features)
-    return tfidf_vec
-
-
 def get_sim(q_vector, post_vector):
     num = q_vector.dot(post_vector)
     den = np.multiply(np.sqrt(q_vector.dot(q_vector)),
@@ -56,7 +50,11 @@ def search():
         n_feats = 5000
         # doc_by_vocab = np.empty([len(data)+1, n_feats])
         print('initialize numpy array')
-        tfidf_vec = build_vectorizer(n_feats)
+        tfidf_vec = TfidfVectorizer(min_df=.01, 
+                        max_df=0.8, 
+                        max_features=n_feats, 
+                        stop_words='english', 
+                        norm='l2')
         print("initialize vectorizer")
 
         # d_array = [str(data[d]['selftext'])+str(data[d]['title']) for d in data]
@@ -68,10 +66,7 @@ def search():
         print("built d_array")
         d_array.append(query)
         print("concatenated text and query")
-        fit_vec = tfidf_vec.fit_transform(d_array)
-        print('fit_transform')
-        print(fit_vec)
-        doc_by_vocab = np.array(fit_vec.todense())
+        doc_by_vocab = tfidf_vec.fit_transform(d_array).toarray()
         print('to array')
         sim_posts = []
         for post_index in range(num_posts):
