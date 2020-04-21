@@ -12,6 +12,8 @@ from app.irsystem.controllers.case_ranking import rank_cases
 project_name = "Team Rob's Chili"
 net_id = "jq77, zs92, ijp9, mlc294, ns739"
 
+with open("app/irsystem/controllers/legaladvicesample.json") as f:
+    data = json.loads(f.readlines()[0])
 
 # =====REDDIT COSINE======
 
@@ -39,8 +41,8 @@ def search():
         return render_template('search.html', name=project_name, netid=net_id, output_message=output_message, data=res)
     else:
         # =====Reddit cos processing START=========
-        with open("app/irsystem/controllers/legaladvicesample.json") as f:
-            data = json.loads(f.readlines()[0])
+        # with open("app/irsystem/controllers/legaladvicesample.json") as f:
+        #     data = json.loads(f.readlines()[0])
         # title, id, selftext, url, created_utc e60m7
         print('loaded reddit data')
         num_posts = len(data)
