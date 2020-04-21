@@ -61,7 +61,7 @@ def search():
         vec = np.concatenate((
             [str(data[d]['selftext'])+str(data[d]['title']) for d in data],[query]))
         print("concatenated text and query")
-        doc_by_vocab = tfidf_vec.fit_transform().toarray()
+        doc_by_vocab = tfidf_vec.fit_transform(vec).toarray()
         print('fit_transform')
         sim_posts = []
         for post_index in range(num_posts):
