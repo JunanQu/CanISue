@@ -10,8 +10,8 @@
     LANG: en_US.UTF-8
     LANGUAGE: en_US.UTF-8
   vars:
-      repository_url: https://github.com/CornellNLP/CS4300_Flask_template.git
-      repository_path: /home/vagrant/CS4300_Flask_template
+      repository_url: https://github.com/JunanQu/canisue_v02
+      repository_path: /home/vagrant/canisue_v02
       dbname: mydb
       dbuser: myapp
       dbpassword: password
