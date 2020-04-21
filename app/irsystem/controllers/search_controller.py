@@ -59,7 +59,7 @@ def search():
         tfidf_vec = build_vectorizer(n_feats)
         print("initialize vectorizer")
         doc_by_vocab = tfidf_vec.fit_transform(
-            [str(data[d]['selftext'])+data[d]['title'] for d in data]+[query]).toarray()
+            [str(data[d]['selftext'])+str(data[d]['title']) for d in data]+[query]).toarray()
         print('fit_transform')
         sim_posts = []
         for post_index in range(num_posts):
