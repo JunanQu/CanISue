@@ -52,19 +52,26 @@ def search():
         num_posts = len(data)
         index_to_posts_id = {index: post_id for index,
                              post_id in enumerate(data)}
+        print('created index')
         n_feats = 5000
         doc_by_vocab = np.empty([len(data), n_feats])
+        print('initialize numpy array')
         tfidf_vec = build_vectorizer(n_feats)
+        print("initialize vectorizer")
         doc_by_vocab = tfidf_vec.fit_transform(
             [str(data[d]['selftext'])+data[d]['title'] for d in data]+[query]).toarray()
+        print('fit_transform')
         sim_posts = []
         for post_index in range(num_posts):
             score = get_sim(doc_by_vocab[post_index], doc_by_vocab[num_posts])
             sim_posts.append((score, post_index))
+        print('calculated similarities')
         sim_posts.sort(key=lambda x: x[0], reverse=True)
+        print('sorted similarities')
         res = []
         for k in range(10):
             res.append(data[index_to_posts_id[sim_posts[k][1]]])
+        print('added results')
          # =====Reddit cos processing END=========
         print('retrieved reddit cases')
          # =====CaseLaw Retrieval=====
