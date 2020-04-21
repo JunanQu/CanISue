@@ -11,7 +11,7 @@
     LANGUAGE: en_US.UTF-8
   vars:
       repository_url: https://github.com/JunanQu/canisue_v02
-      repository_path: /home/vagrant/canisue_v02
+      repository_path: /home/vagrant/CanISue_V02
       dbname: mydb
       dbuser: myapp
       dbpassword: password
