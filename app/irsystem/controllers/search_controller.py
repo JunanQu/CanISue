@@ -41,12 +41,14 @@ def search():
     if not query:
         res = []
         output_message = ''
+        print('no query')
         return render_template('search.html', name=project_name, netid=net_id, output_message=output_message, data=res)
     else:
         # =====Reddit cos processing START=========
         with open("app/irsystem/controllers/legaladvicesample.json") as f:
             data = json.loads(f.readlines()[0])
         # title, id, selftext, url, created_utc e60m7
+        print('loaded reddit data')
         num_posts = len(data)
         index_to_posts_id = {index: post_id for index,
                              post_id in enumerate(data)}
@@ -64,11 +66,14 @@ def search():
         for k in range(10):
             res.append(data[index_to_posts_id[sim_posts[k][1]]])
          # =====Reddit cos processing END=========
+        print('retrieved reddit cases')
          # =====CaseLaw Retrieval=====
+        print('begin caselaw retrieval')
         caselaw = rank_cases(query)
         caseresults = caselaw[0:5]
         print(len(caselaw))
          # =====Processing results================
+        print('completed caselaw retrieval')
         for i in range(3):
             post = res[i]
             if len(post['selftext']) > 500:
@@ -84,4 +89,5 @@ def search():
         # output_message = output_message_1+' \n '+output_message_2
         caselaw_message = "Historical precedences on '" + query + "':"
         output_message = "Past discussions on '" + query + "':"
+        print('rendering template..')
         return render_template('search.html', name=project_name, netid=net_id, output_message=output_message, data=res[:3], casedata = caseresults, caselaw_message = caselaw_message)
