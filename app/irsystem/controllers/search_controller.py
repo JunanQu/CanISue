@@ -92,8 +92,11 @@ def search():
         # =====CaseLaw Retrieval=====
         print('begin caselaw retrieval')
         caselaw = rank_cases(query)
-        caseresults = caselaw[0:5]
-        print(len(caselaw))
+        if not caselaw:
+            # API call to CAP failed
+            caseresults = []
+        else:
+            caseresults = caselaw[0:5]
         # =====Processing results================
         print('completed caselaw retrieval')
         for i in range(3):

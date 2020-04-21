@@ -35,20 +35,26 @@ def rank_cases(query:str, stem_tokens=False):
     (False by default because it's a bottleneck and it does not affect results much)
 
     Returns:
-    ranked list of dicts with fields case_name <str>, case_summary <str>, and score <float>
+     - ranked list of dicts with fields case_name <str>, case_summary <str>, and score <float>
+     - None if API request fails
     """
 
     ## STEP 1: load cases ##
 
-    # query data
-    response = utils.get_request_caselaw("https://api.case.law/v1/cases/?search='{}'&full_case=TRUE".format(query)).json()
-    cases = response['results']
-    
-    i = 1 # limit to 2 requests (200 cases) because that should be more than enough
-    while response['next'] and i < 2: 
-        response = utils.get_request_caselaw(response['next']).json()
-        cases.extend(response['results'])
-        i += 1
+    try:
+        # query data
+        response = utils.get_request_caselaw("https://api.case.law/v1/cases/?search='{}'&full_case=TRUE".format(query)).json()
+        cases = response['results']
+        
+        i = 1 # limit to 2 requests (200 cases) because that should be more than enough
+        while response['next'] and i < 2: 
+            response = utils.get_request_caselaw(response['next']).json()
+            cases.extend(response['results'])
+            i += 1
+    except Exception:
+        print("API request failed")
+        return None
+
 
     ## STEP 2: pre-processing ##
 
