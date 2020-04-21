@@ -54,7 +54,7 @@ def search():
                              post_id in enumerate(data)}
         print('created index')
         n_feats = 5000
-        doc_by_vocab = np.empty([len(data), n_feats])
+        doc_by_vocab = np.empty([len(data)+1, n_feats])
         print('initialize numpy array')
         tfidf_vec = build_vectorizer(n_feats)
         print("initialize vectorizer")
@@ -68,8 +68,10 @@ def search():
         print("built d_array")
         d_array.append(query)
         print("concatenated text and query")
-        doc_by_vocab = tfidf_vec.fit_transform(d_array).toarray()
+        fit_vec = tfidf_vec.fit_transform(d_array)
         print('fit_transform')
+        doc_by_vocab = fit_vec.toarray()
+        print('to array')
         sim_posts = []
         for post_index in range(num_posts):
             score = get_sim(doc_by_vocab[post_index], doc_by_vocab[num_posts])
