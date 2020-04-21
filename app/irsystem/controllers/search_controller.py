@@ -74,7 +74,7 @@ def search():
         try:
             doc_by_vocab = np.array(fit_vec.todense())
         except Exception as e:
-            print('Error: ' + str(e))
+            print('Error: ', repr(e))
         print('to array')
         sim_posts = []
         for post_index in range(num_posts):
