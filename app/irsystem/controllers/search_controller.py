@@ -95,10 +95,10 @@ def search():
         print(len(caselaw))
         # =====Processing results================
         print('completed caselaw retrieval')
-        for i in range(3):
-            post = res[i]
-            if len(post['selftext']) > 500:
-                post['selftext'] = post['selftext'][0:500] + '...'
+        # for i in range(3):
+        #     post = res[i]
+        #     if len(post['selftext']) > 500:
+        #         post['selftext'] = post['selftext'][0:500] + '...'
         # output_message_1 = "Your search: " + query
         # output_message_2 = "Here's what other people have experienced:"
         # if(len(res) >= 3):
