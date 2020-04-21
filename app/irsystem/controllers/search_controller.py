@@ -66,9 +66,9 @@ def search():
             d_array.append(s)
         
         print("built d_array")
-        vec = d_array.append(query)
+        d_array.append(query)
         print("concatenated text and query")
-        doc_by_vocab = tfidf_vec.fit_transform(vec).toarray()
+        doc_by_vocab = tfidf_vec.fit_transform(d_array).toarray()
         print('fit_transform')
         sim_posts = []
         for post_index in range(num_posts):
