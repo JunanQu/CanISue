@@ -70,7 +70,7 @@ def search():
         print("concatenated text and query")
         fit_vec = tfidf_vec.fit_transform(d_array)
         print('fit_transform')
-        doc_by_vocab = fit_vec.toarray()
+        doc_by_vocab = np.array(fit_vec.todense())
         print('to array')
         sim_posts = []
         for post_index in range(num_posts):
