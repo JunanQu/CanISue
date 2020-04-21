@@ -70,7 +70,12 @@ def search():
         print('to array')
         sim_posts = []
         for post_index in range(num_posts):
-            score = get_sim(doc_by_vocab[post_index], doc_by_vocab[num_posts])
+            # score = get_sim(doc_by_vocab[post_index], doc_by_vocab[num_posts])
+            q_vector = doc_by_vocab[post_index]
+            post_vector = doc_by_vocab[num_posts]
+            num = q_vector.dot(post_vector)
+            den = np.multiply(np.sqrt(q_vector.dot(q_vector)), np.sqrt(post_vector.dot(post_vector)))
+            score = num/den
             sim_posts.append((score, post_index))
         print('calculated similarities')
         sim_posts.sort(key=lambda x: x[0], reverse=True)
