@@ -40,26 +40,15 @@ def rank_cases(query:str, stem_tokens=False):
 
     ## STEP 1: load cases ##
 
-    file_name = "data/output_{}.json".format(query.replace(" ", "-"))
-
-    if os.path.exists(file_name):
-        # pre-load data if it has already been queried
-        with open(file_name, 'r') as f:
-            cases = json.load(f)
-    else:
-        # query data
-        response = utils.get_request_caselaw("https://api.case.law/v1/cases/?search='{}'&full_case=TRUE".format(query)).json()
-        cases = response['results']
-        
-        i = 1 # limit to 5 requests (500 cases) because that should be more than enough
-        while response['next'] and i < 5: 
-            response = utils.get_request_caselaw(response['next']).json()
-            cases.extend(response['results'])
-            i += 1
-        
-        # save data in case it is queried again
-        with open(file_name, 'w') as f:
-            json.dump(cases, f)
+    # query data
+    response = utils.get_request_caselaw("https://api.case.law/v1/cases/?search='{}'&full_case=TRUE".format(query)).json()
+    cases = response['results']
+    
+    i = 1 # limit to 2 requests (200 cases) because that should be more than enough
+    while response['next'] and i < 2: 
+        response = utils.get_request_caselaw(response['next']).json()
+        cases.extend(response['results'])
+        i += 1
 
     ## STEP 2: pre-processing ##
 
