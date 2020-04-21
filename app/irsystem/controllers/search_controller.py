@@ -9,7 +9,7 @@ import os
 # print(os.getcwd())
 from app.irsystem.controllers.case_ranking import rank_cases
 
-project_name = "Team Rob's Chili"
+project_name = "Can I Sue?"
 net_id = "jq77, zs92, ijp9, mlc294, ns739"
 
 # with open("app/irsystem/controllers/legaladvicesample.json") as f:
