@@ -54,17 +54,17 @@ def search():
                              post_id in enumerate(data)}
         print('created index')
         n_feats = 5000
-        doc_by_vocab = np.empty([len(data)+1, n_feats])
+        # doc_by_vocab = np.empty([len(data)+1, n_feats])
         print('initialize numpy array')
         tfidf_vec = build_vectorizer(n_feats)
         print("initialize vectorizer")
-        
+
         # d_array = [str(data[d]['selftext'])+str(data[d]['title']) for d in data]
         d_array = []
         for d in data:
             s = str(data[d]['selftext'])+str(data[d]['title'])
             d_array.append(s)
-        
+
         print("built d_array")
         d_array.append(query)
         print("concatenated text and query")
@@ -83,14 +83,14 @@ def search():
         for k in range(10):
             res.append(data[index_to_posts_id[sim_posts[k][1]]])
         print('added results')
-         # =====Reddit cos processing END=========
+        # =====Reddit cos processing END=========
         print('retrieved reddit cases')
-         # =====CaseLaw Retrieval=====
+        # =====CaseLaw Retrieval=====
         print('begin caselaw retrieval')
         caselaw = rank_cases(query)
         caseresults = caselaw[0:5]
         print(len(caselaw))
-         # =====Processing results================
+        # =====Processing results================
         print('completed caselaw retrieval')
         for i in range(3):
             post = res[i]
@@ -108,4 +108,4 @@ def search():
         caselaw_message = "Historical precedences on '" + query + "':"
         output_message = "Past discussions on '" + query + "':"
         print('rendering template..')
-        return render_template('search.html', name=project_name, netid=net_id, output_message=output_message, data=res[:3], casedata = caseresults, caselaw_message = caselaw_message)
+        return render_template('search.html', name=project_name, netid=net_id, output_message=output_message, data=res[:3], casedata=caseresults, caselaw_message=caselaw_message)
