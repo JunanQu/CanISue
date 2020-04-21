@@ -58,8 +58,9 @@ def search():
         print('initialize numpy array')
         tfidf_vec = build_vectorizer(n_feats)
         print("initialize vectorizer")
-        vec = np.concatenate((
-            [str(data[d]['selftext'])+str(data[d]['title']) for d in data],[query]))
+        d_array = [str(data[d]['selftext'])+str(data[d]['title']) for d in data]
+        print("built d_array")
+        vec = np.concatenate((d_array,[query]))
         print("concatenated text and query")
         doc_by_vocab = tfidf_vec.fit_transform(vec).toarray()
         print('fit_transform')
