@@ -70,11 +70,11 @@ def search():
         print("concatenated text and query")
         fit_vec = tfidf_vec.fit_transform(d_array)
         print('fit_transform')
-        print(fit_vec)
+        # print(fit_vec)
         try:
             doc_by_vocab = np.array(fit_vec.todense())
-        except Exception as e:
-            print('Error: ', repr(e))
+        except BaseException as e:
+            print('Error: ', repr(e), flush=True)
         print('to array')
         sim_posts = []
         for post_index in range(num_posts):
