@@ -44,8 +44,8 @@ def rank_cases(query:str, stem_tokens=False):
     response = utils.get_request_caselaw("https://api.case.law/v1/cases/?search='{}'&full_case=TRUE".format(query)).json()
     cases = response['results']
     
-    i = 1 # limit to 5 requests (500 cases) because that should be more than enough
-    while response['next'] and i < 5: 
+    i = 1 # limit to 2 requests (200 cases) because that should be more than enough
+    while response['next'] and i < 2: 
         response = utils.get_request_caselaw(response['next']).json()
         cases.extend(response['results'])
         i += 1
