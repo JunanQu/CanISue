@@ -40,7 +40,6 @@ def rank_cases(query:str, stem_tokens=False):
     """
 
     ## STEP 1: load cases ##
-
     try:
         # query data
         response = utils.get_request_caselaw("https://api.case.law/v1/cases/?search='{}'&full_case=TRUE".format(query)).json()

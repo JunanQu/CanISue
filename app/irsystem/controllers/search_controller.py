@@ -94,7 +94,7 @@ def search():
         caselaw = rank_cases(query)
         if not caselaw:
             # API call to CAP failed
-            caseresults = []
+            caseresults = [-1]
         else:
             caseresults = caselaw[0:5]
         # =====Processing results================
