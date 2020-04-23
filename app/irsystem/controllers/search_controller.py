@@ -109,6 +109,12 @@ def search():
         caselaw_message = "Historical precedences:"
         output_message = "Past discussions:"
         print('rendering template..')
+
+        # Score to keep to 3 decimals
+        for case in caseresults:
+            case['score'] = round(case['score'], 3)
+        # ============================
+
         return render_template('search.html', name=project_name, netid=net_id,
                                output_message=output_message, data=res[:3], casedata=caseresults,
                                caselaw_message=caselaw_message,
