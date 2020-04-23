@@ -20,6 +20,7 @@ with open("data/legaladvicesmall.json") as f:
 
 # title, id, selftext, url, created_utc e60m7
 
+
 def get_sim(q_vector, post_vector):
     num = q_vector.dot(post_vector)
     den = np.multiply(np.sqrt(q_vector.dot(q_vector)),
@@ -53,11 +54,11 @@ def search():
         n_feats = 5000
         # doc_by_vocab = np.empty([len(data)+1, n_feats])
         print('initialize numpy array')
-        tfidf_vec = TfidfVectorizer(min_df=.01, 
-                        max_df=0.8, 
-                        max_features=n_feats, 
-                        stop_words='english', 
-                        norm='l2')
+        tfidf_vec = TfidfVectorizer(min_df=.01,
+                                    max_df=0.8,
+                                    max_features=n_feats,
+                                    stop_words='english',
+                                    norm='l2')
         print("initialize vectorizer")
 
         # d_array = [str(data[d]['selftext'])+str(data[d]['title']) for d in data]
@@ -77,7 +78,8 @@ def search():
             q_vector = doc_by_vocab[post_index]
             post_vector = doc_by_vocab[num_posts]
             num = q_vector.dot(post_vector)
-            den = np.multiply(np.sqrt(q_vector.dot(q_vector)), np.sqrt(post_vector.dot(post_vector)))
+            den = np.multiply(np.sqrt(q_vector.dot(q_vector)),
+                              np.sqrt(post_vector.dot(post_vector)))
             score = num/den
             sim_posts.append((score, post_index))
         print('calculated similarities')
@@ -99,19 +101,21 @@ def search():
             caseresults = caselaw[0:5]
         # =====Processing results================
         print('completed caselaw retrieval')
-        for i in range(3):
-            post = res[i]
-            if len(post['selftext']) > 500:
-                post['selftext'] = post['selftext'][0:500] + '...'
-        # output_message_1 = "Your search: " + query
-        # output_message_2 = "Here's what other people have experienced:"
-        # if(len(res) >= 3):
-        #     output_message_2 = 'Here are the top 3 related cases'
-        # else:
-        #     output_message_2 = 'Here are the top {n:.0f} related cases'.format(
-        #         n=len(res))
+        if(len(res) >= 3):
+            for i in range(3):
+                post = res[i]
+                if(post['selftext'] is None):
+                    continue
+                if len(post['selftext']) > 500:
+                    post['selftext'] = post['selftext'][0:500] + '...'
+        else:
+            for i in range(len(res)):
+                post = res[i]
+                if(post['selftext'] is None):
+                    continue
+                if len(post['selftext']) > 500:
+                    post['selftext'] = post['selftext'][0:500] + '...'
 
-        # output_message = output_message_1+' \n '+output_message_2
         caselaw_message = "Historical precedences on '" + query + "':"
         output_message = "Past discussions on '" + query + "':"
         print('rendering template..')
