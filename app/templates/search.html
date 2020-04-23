@@ -34,7 +34,11 @@
         <br><br>
 
         <div class="form-group">
-            <input id="input" type="text" name="search" class="form-control" placeholder="Search Cases">
+            {% if user_query %}
+            <input id="input" type="text" name="search" class="form-control" placeholder="{{user_query}}">
+            {%else %}
+            <input id=" input" type="text" name="search" class="form-control" placeholder="Search Cases">
+            {% endif %}
         </div>
         <button type="submit" class="btn btn-info"> Search </button>
     </form>
@@ -42,21 +46,21 @@
     <!--Start -->
     <section class="feature-area">
         {% if casedata %}
-            {% if casedata[0] == -1 %}
-            <p>
-                Case results API is currently down
-            </p>
-            {% else %}
-            <div class="container" style="text-align: center; ">
-                <h1 style="white-space: pre;">{{caselaw_message}}</h1>
+        {% if casedata[0] == -1 %}
+        <p>
+            Case results API is currently down
+        </p>
+        {% else %}
+        <div
+            style="overflow: auto; width:45%; height:800px; display:inline-block; margin-left: 5%; border: 5px solid black ;">
+            <div class=" container" style="text-align: center; width:95%">
+                <h1 style="white-space: pre">{{caselaw_message}}</h1>
                 <div class="feature-inner row">
                     {% for d in range(casedata|length) %}
                     <div class="feature-item" style="border-color:black;border-style: solid; margin-bottom: 10px;">
                         <i class="ti-crown" style="padding-top: 5px;"></i>
                         <h5>
-                            <center><strong>
-                                    {{casedata[d].casename}}
-                                </strong></center>
+                            {{casedata[d].case_name}}
                         </h5>
                         <br>
                         <div class="wow fadeIn" data-wow-duration="1s" data-wow-delay=".1s">
@@ -72,28 +76,30 @@
                     {% endfor %}
                 </div>
             </div>
-            {% endif %}
+        </div>
+        {% endif %}
         {% endif %}
         {% if data %}
+        <div style="overflow: auto; width:45%; height:800px; display:inline-block; border: 5px solid black ;">
+            <div class="container" style="text-align: center; width:95%">
+                <h1 style="white-space: pre;">{{output_message}}</h1>
+                <div class="feature-inner row">
+                    {% for d in range(data|length) %}
+                    <div class="feature-item" style="border-color:black;border-style: solid; margin-bottom: 10px;">
+                        <i class="ti-crown" style="padding-top: 5px;"></i>
+                        <h4>{{data[d].title}}</h4>
+                        <div class="wow fadeIn" data-wow-duration="1s" data-wow-delay=".1s">
+                            <p>
+                                {{data[d].selftext}}
+                            </p>
 
-        <div class="container" style="text-align: center; ">
-            <h1 style="white-space: pre;">{{output_message}}</h1>
-            <div class="feature-inner row">
-                {% for d in range(data|length) %}
-                <div class="feature-item" style="border-color:black;border-style: solid; margin-bottom: 10px;">
-                    <i class="ti-crown" style="padding-top: 5px;"></i>
-                    <h4>{{data[d].title}}</h4>
-                    <div class="wow fadeIn" data-wow-duration="1s" data-wow-delay=".1s">
-                        <p>
-                            {{data[d].selftext}}
-                        </p>
-
-                        <p>
-                            <a href="{{data[d].url}}">Follow this discussion</a>
-                        </p>
+                            <p>
+                                <a href="{{data[d].url}}">Follow this discussion</a>
+                            </p>
+                        </div>
                     </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
             </div>
         </div>
         {% endif %}
