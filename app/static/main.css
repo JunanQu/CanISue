@@ -11,16 +11,9 @@ padding: 20px 0;
 text-align:center;
 }
 body {
-padding-top: 5%;
-padding-bottom: 5%;
+padding-top: 15%;
+padding-bottom: 15px;
 }
-.background-img{
-background-image: url(img/legal1.jpg);
-background-size: cover;
-background-repeat: no-repeat;
-opacity:0.2;
-}
-
 .global-search {
 text-align:center;
 padding:10px;
@@ -44,13 +37,6 @@ border: none
 }
 .step-links a{
 color: #4285F4;
-}
-.bottomcenter{
-  position:absolute;
-  bottom:2%;
-  left:20%;
-  right:20%;
-  /* text-align:center; */
 }
 
 /* ---------------------------------------------------------------------------------- */
@@ -2033,7 +2019,7 @@ body.mobile-nav-active #mobile-nav-toggle {
   margin-right: 20px; }
 
 .feature-area {
-  padding: 100px 0 120px; }
+  padding: 150px 0 120px; }
   @media (max-width: 991px) {
     .feature-area {
       padding: 80px 0px; } }
