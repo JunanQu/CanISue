@@ -10,7 +10,7 @@ import os
 from app.irsystem.controllers.case_ranking import rank_cases
 
 project_name = "Can I Sue?"
-net_id = "jq77, zs92, ijp9, mlc294, ns739"
+net_id = "Junan Qu (jq77), Zachary Shine (zs92), Ian Paul (ijp9), Max Chen (mlc294), Nikhil Saggi (ns739)"
 
 # with open("app/irsystem/controllers/legaladvicesample.json") as f:
 with open("data/legaladvicesmall.json") as f:
