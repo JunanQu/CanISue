@@ -112,10 +112,7 @@ def search():
         #         n=len(res))
 
         # output_message = output_message_1+' \n '+output_message_2
-        caselaw_message = "Historical precedences:"
-        output_message = "Past discussions:"
+        caselaw_message = "Historical precedences on '" + query + "':"
+        output_message = "Past discussions on '" + query + "':"
         print('rendering template..')
-        return render_template('search.html', name=project_name, netid=net_id, \
-        output_message=output_message, data=res[:3], casedata=caseresults, \
-        caselaw_message=caselaw_message,
-        user_query = query)
+        return render_template('search.html', name=project_name, netid=net_id, output_message=output_message, data=res[:3], casedata=caseresults, caselaw_message=caselaw_message)
