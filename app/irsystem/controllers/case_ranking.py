@@ -48,7 +48,7 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
             jurisdiction = ''
         else:
             url = url + '&jurisdiction=' + str(jurisdiction)
-        if not earlydate and len(earlydate) > 0:
+        if earlydate and len(earlydate) > 0:
             url = url + '&decision_date_min=' + str(earlydate)
         response = utils.get_request_caselaw(url).json()
         cases = response['results']
