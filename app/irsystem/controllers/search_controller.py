@@ -99,12 +99,15 @@ def search():
         print('retrieved reddit cases')
         # =====CaseLaw Retrieval=====
         print('begin caselaw retrieval')
-        caselaw = rank_cases(query, jurisdiction = jurisdiction, earlydate = minimum_date)
+        caselaw, debug_msg = rank_cases(query, jurisdiction = jurisdiction, earlydate = minimum_date)
         if not caselaw:
             # API call to CAP failed
             caseresults = [-1]
         else:
             caseresults = caselaw[0:5]
+            # Score to keep to 3 decimals
+            for case in caseresults:
+                case['score'] = round(case['score'], 3)
         # =====Processing results================
         print('completed caselaw retrieval')
         for i in range(3):
@@ -115,13 +118,10 @@ def search():
         caselaw_message = "Historical precedences:"
         output_message = "Past discussions:"
         print('rendering template..')
-
-        # Score to keep to 3 decimals
-        for case in caseresults:
-            case['score'] = round(case['score'], 3)
+        
         # ============================
 
         return render_template('search.html', name=project_name, netid=net_id,
                                output_message=output_message, data=res[:3], casedata=caseresults,
                                caselaw_message=caselaw_message,
-                               user_query=query)
+                               user_query=query, debug_message = debug_msg)

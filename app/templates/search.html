@@ -94,6 +94,7 @@
         <button type="submit" class="btn btn-info"> Search </button>
     </form>
 
+    {% if debug_message == '' %}
     <!--Start -->
     <section class="feature-area">
         {% if casedata %}
@@ -158,6 +159,14 @@
         </div>
         {% endif %}
     </section>
+    {% else %}
+    <center>
+        <div class="alert">
+            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+            {{debug_message}}
+        </div>
+    </center>
+    {% endif %}
     <!-- End-->
     {% if (not casedata) and (not data) %}
     <div class="topcorner">

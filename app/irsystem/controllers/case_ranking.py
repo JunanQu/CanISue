@@ -40,7 +40,7 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
     """
 
     ## STEP 1: load cases ##
-
+    debug_message = ''
     try:
         # query data
         url = "https://api.case.law/v1/cases/?search='{}'&full_case=TRUE".format(query)
@@ -60,7 +60,8 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
             i += 1
     except Exception:
         print("API request failed")
-        return None
+        debug_message = 'The Case Law API is currently down. Sorry for the inconvenience!'
+        return (None, debug_message)
     
     ## STEP 2: pre-processing ##
 
@@ -98,21 +99,24 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
                         max_features=5000, 
                         stop_words='english', 
                         norm='l2')
+    try:
+        tfidf_matrix = vec.fit_transform(case_texts + [query]).toarray()
+        query_vec = tfidf_matrix[-1]
+        scores = [cosine_similarity(query_vec.reshape(1,-1), doc_vec.reshape(1,-1))[0][0] for doc_vec in tfidf_matrix[:-1]]
 
-    tfidf_matrix = vec.fit_transform(case_texts + [query]).toarray()
+        ## STEP 4: sort and return cases ##
+
+        # TODO: currently just returns full case, need to find a way to summarize case
+        results = pd.DataFrame(list(zip(case_names, case_texts, scores)), columns=['case_name', 'case_summary', 'score'])
+        results = results.sort_values('score', ascending=False).reset_index(drop=True)
+        
+        return (results.to_dict('records'), debug_message)
+    except:
+        debug_message = 'No cases found. Please enter a new query or try a wider date range!'
+        return (None, debug_message)
 
     # compute cosine similarity of cases to search query
-    query_vec = tfidf_matrix[-1]
-    scores = [cosine_similarity(query_vec.reshape(1,-1), doc_vec.reshape(1,-1))[0][0] for doc_vec in tfidf_matrix[:-1]]
-
-    ## STEP 4: sort and return cases ##
-
-    # TODO: currently just returns full case, need to find a way to summarize case
-    results = pd.DataFrame(list(zip(case_names, case_texts, scores)), columns=['case_name', 'case_summary', 'score'])
-    results = results.sort_values('score', ascending=False).reset_index(drop=True)
     
-    return results.to_dict('records')
-
 
 if __name__ == "__main__":
     with open('output.json', 'w') as f:
