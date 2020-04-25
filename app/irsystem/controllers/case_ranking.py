@@ -40,21 +40,21 @@ def rank_cases(query:str, stem_tokens=False):
     """
 
     ## STEP 1: load cases ##
+
     try:
         # query data
         response = utils.get_request_caselaw("https://api.case.law/v1/cases/?search='{}'&full_case=TRUE".format(query)).json()
         cases = response['results']
         
-        i = 1 # limit to 2 requests (200 cases) because that should be more than enough
-        while response['next'] and i < 2: 
+        i = 1 # limit to 5 requests (500 cases) because that should be more than enough
+        while response['next'] and i < 5: 
             response = utils.get_request_caselaw(response['next']).json()
             cases.extend(response['results'])
             i += 1
     except Exception:
         print("API request failed")
         return None
-
-
+    
     ## STEP 2: pre-processing ##
 
     for case in cases:
@@ -98,8 +98,6 @@ def rank_cases(query:str, stem_tokens=False):
     query_vec = tfidf_matrix[-1]
     scores = [cosine_similarity(query_vec.reshape(1,-1), doc_vec.reshape(1,-1))[0][0] for doc_vec in tfidf_matrix[:-1]]
 
-
-
     ## STEP 4: sort and return cases ##
 
     # TODO: currently just returns full case, need to find a way to summarize case
@@ -111,4 +109,4 @@ def rank_cases(query:str, stem_tokens=False):
 
 if __name__ == "__main__":
     with open('output.json', 'w') as f:
-        json.dump(rank_cases("employer fired me for age discrimination"), f)
+        json.dump(rank_cases("fence built on my property"), f)
