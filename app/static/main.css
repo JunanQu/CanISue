@@ -13,6 +13,9 @@ text-align:center;
 body {
 padding-top: 5%;
 padding-bottom: 5%;
+background-image: url(img/legal-background-8.jpg);
+background-size: cover;
+background-repeat: no-repeat;
 }
 .background-img{
 background-image: url(img/legal1.jpg);
@@ -36,7 +39,8 @@ margin-bottom:0;
 .topcorner{
 position:absolute;
 top:2%;
-right:2%;
+left:2%;
+/* right:2%; */
 }
 .btn{
 background-color: #4285F4;
