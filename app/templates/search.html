@@ -37,7 +37,8 @@
                 onblur="(this.type='text')" id="earliestdate" name="earliestdate">
             <!-- Dropdown Menu for States -->
             <select id="jurisdisction" name="state">
-                <option value="Federal">All Jurisdictions</option>
+                <option value="all">All Jurisdictions</option>
+                <option value="us">Federal</option>
                 <option value="ala">Alabama</option>
                 <option value="alaska">Alaska</option>
                 <option value="ariz">Arizona</option>
@@ -135,6 +136,10 @@
                                 font-style: normal;
                                 color: rgba(9, 9, 9, 0.845)"> Score: {{casedata[d].score}} </span>
                             </p>
+
+                            <p>
+                                <a href="{{casedata[d].case_url}}" target="_blank">Read full case</a>
+                            </p>
                         </div>
                     </div>
                     {% endfor %}
@@ -158,7 +163,7 @@
                             </p>
 
                             <p>
-                                <a href="{{data[d].url}}">Follow this discussion</a>
+                                <a href="{{data[d].url}}" target="_blank">Follow this discussion</a>
                             </p>
                         </div>
                     </div>
