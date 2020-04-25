@@ -33,7 +33,11 @@ def get_sim(q_vector, post_vector):
 
 @irsystem.route('/', methods=['GET'])
 def search():
+    #Search Query
     query = request.args.get('search')
+    #Jurisdiction level ('Federal' or state abbreviation)
+    jurisdiction = request.args.get('state')
+    print(jurisdiction)
     print(query)
     output_message = ''
     if not query:
@@ -93,7 +97,7 @@ def search():
         print('retrieved reddit cases')
         # =====CaseLaw Retrieval=====
         print('begin caselaw retrieval')
-        caselaw = rank_cases(query)
+        caselaw = rank_cases(query, jurisdiction = jurisdiction)
         if not caselaw:
             # API call to CAP failed
             caseresults = [-1]

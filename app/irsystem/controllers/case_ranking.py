@@ -23,7 +23,7 @@ def tokenize(text:str):
     return [stemmer.stem(word) for word in word_tokenize(text.translate(trans_table)) if len(word) > 1]
 
 
-def rank_cases(query:str, stem_tokens=False):
+def rank_cases(query:str, stem_tokens=False, jurisdiction=''):
     """
     Finds cases relevant to query from CAP API based on the similarity of the
     case summary to the query. Cases are then ranked by tfidf cosine similarity
@@ -43,7 +43,12 @@ def rank_cases(query:str, stem_tokens=False):
 
     try:
         # query data
-        response = utils.get_request_caselaw("https://api.case.law/v1/cases/?search='{}'&full_case=TRUE".format(query)).json()
+        url = "https://api.case.law/v1/cases/?search='{}'&full_case=TRUE".format(query)
+        if jurisdiction == 'Federal':
+            jurisdiction = ''
+        else:
+            url = url + '&jurisdiction=' + str(jurisdiction)
+        response = utils.get_request_caselaw(url).json()
         cases = response['results']
         
         i = 1 # limit to 5 requests (500 cases) because that should be more than enough
