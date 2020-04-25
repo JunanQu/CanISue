@@ -23,7 +23,7 @@ def tokenize(text:str):
     return [stemmer.stem(word) for word in word_tokenize(text.translate(trans_table)) if len(word) > 1]
 
 
-def rank_cases(query:str, stem_tokens=False, jurisdiction=''):
+def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
     """
     Finds cases relevant to query from CAP API based on the similarity of the
     case summary to the query. Cases are then ranked by tfidf cosine similarity
@@ -48,6 +48,8 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction=''):
             jurisdiction = ''
         else:
             url = url + '&jurisdiction=' + str(jurisdiction)
+        if not earlydate and len(earlydate) > 0:
+            url = url + '&decision_date_min=' + str(earlydate)
         response = utils.get_request_caselaw(url).json()
         cases = response['results']
         

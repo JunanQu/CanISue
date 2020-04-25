@@ -30,9 +30,14 @@
             {%else %}
             <input id=" input" type="text" name="search" class="form-control" placeholder="Search Cases">
             {% endif %}
+            <br>
+            <!-- <input type="date" id="test" name="test" placeholder="Earliest Case Date"> -->
+            <strong>Earliest Case Date:</strong>
+            <input placeholder="Any Date Range" class="textbox-n" type="text" onfocus="(this.type='date')"
+                onblur="(this.type='text')" id="earliestdate" name="earliestdate">
             <!-- Dropdown Menu for States -->
             <select id="jurisdisction" name="state">
-                <option value="Federal">Federal</option>
+                <option value="Federal">All Jurisdictions</option>
                 <option value="ala">Alabama</option>
                 <option value="alaska">Alaska</option>
                 <option value="ariz">Arizona</option>

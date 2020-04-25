@@ -37,8 +37,10 @@ def search():
     query = request.args.get('search')
     #Jurisdiction level ('Federal' or state abbreviation)
     jurisdiction = request.args.get('state')
-    print(jurisdiction)
+    minimum_date = request.args.get('earliestdate')
     print(query)
+    print(jurisdiction)
+    print(minimum_date)
     output_message = ''
     if not query:
         res = []
@@ -97,7 +99,7 @@ def search():
         print('retrieved reddit cases')
         # =====CaseLaw Retrieval=====
         print('begin caselaw retrieval')
-        caselaw = rank_cases(query, jurisdiction = jurisdiction)
+        caselaw = rank_cases(query, jurisdiction = jurisdiction, earlydate = minimum_date)
         if not caselaw:
             # API call to CAP failed
             caseresults = [-1]
