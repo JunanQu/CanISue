@@ -1,6 +1,7 @@
 import math
 import json
 import numpy as np
+import requests
 from sklearn.feature_extraction.text import TfidfVectorizer
 from . import *
 from app.irsystem.models.helpers import *
@@ -12,9 +13,8 @@ from app.irsystem.controllers.case_ranking import rank_cases
 project_name = "Can I Sue?"
 net_id = "Junan Qu (jq77), Zachary Shine (zs92), Ian Paul (ijp9), Max Chen (mlc294), Nikhil Saggi (ns739)"
 
-# with open("app/irsystem/controllers/legaladvicesample.json") as f:
-with open("data/legaladvicesmall.json") as f:
-    data = json.loads(f.readlines()[0])
+r = requests.get("https://storage.googleapis.com/can_i_sue_reddit/reddit_data.json") 
+data = r.json()
 
 # =====REDDIT COSINE======
 
@@ -49,8 +49,6 @@ def search():
         return render_template('search.html', name=project_name, netid=net_id, output_message=output_message, data=res)
     else:
         # =====Reddit cos processing START=========
-        # with open("app/irsystem/controllers/legaladvicesample.json") as f:
-        #     data = json.loads(f.readlines()[0])
         # title, id, selftext, url, created_utc e60m7
         print('loaded reddit data')
         num_posts = len(data)
