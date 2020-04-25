@@ -15,6 +15,7 @@ net_id = "Junan Qu (jq77), Zachary Shine (zs92), Ian Paul (ijp9), Max Chen (mlc2
 
 r = requests.get("https://storage.googleapis.com/can_i_sue_reddit/reddit_data.json") 
 data = r.json()
+print("loaded reddit data")
 
 # =====REDDIT COSINE======
 
