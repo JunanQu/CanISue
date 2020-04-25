@@ -1,9 +1,21 @@
-.alert {
+.alert-error {
   padding: 20px;
-  background-color: #f44336;
   color: white;
-  width:40%;
+  width:90%;
   align-self: center;
+  background-color: #f44336;
+
+}
+.alert-disclaimer {
+  position:fixed;
+  bottom:0%;
+  padding: 20px;
+  color: white;
+  /* width:90%; */
+  align-self: center;
+  background-color:rgb(33,150,243);
+  /* margin-left: auto; */
+  /* margin-right: auto; */
 }
 
 .closebtn {
