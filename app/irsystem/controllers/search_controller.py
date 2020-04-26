@@ -52,7 +52,6 @@ def search():
     else:
         # =====Reddit cos processing START=========
         # title, id, selftext, url, created_utc e60m7
-        print('loaded reddit data')
         num_posts = len(data)
         index_to_posts_id = {index: post_id for index,
                              post_id in enumerate(data)}
@@ -112,6 +111,10 @@ def search():
                 case['score'] = round(case['score'], 3)
                 case['fulltext'] = case['case_summary']
             caseresults = summarize_cases(caseresults)
+            for case in caseresults:
+                case['case_summary'] = case['case_summary'][0:min(1000 ,len(case['case_summary']))]
+                if len(case['case_summary']) == 1000:
+                    case['case_summary'] = case['case_summary'] + '...'
         # =====Processing results================
         print('completed caselaw retrieval')
         for i in range(3):
