@@ -166,14 +166,14 @@ def create_summary(sentences, sentence_weight_dict, threshold, n_chars=10):
 def sigmoid_func(a,b,c,d):
     return a/(1 + np.exp(-b*c)) + d
 
-def case_summary(case_text):
+def case_summary(case_text, multiplier):
     """
     Returns a summary of case_text
     
     case_text: ranked list of dicts with fields case_name <str>, case_summary <str>, and score <float>
+    multiplier: float to threshold sentence_scores which determines what sentences are included in the case summary
     """
-    z_score = (len(sent_tokenize(case_text)) - avg) / std_dev
-    multiplier = sigmoid_func(1.75,0.4,z_score,0.25)
+    
     try:
         # create a tf dictionary
         tf_dictionary = create_tf_dict(case_text)
@@ -194,7 +194,7 @@ def case_summary(case_text):
         
         return None
     
-def summarize_cases(results):
+def summarize_cases(results, multiplier=1.2):
     """
     Returns a list of dicts with fields case_name <str>, case_summary <str>, and score <float> 
     where the case_summary field is a summarized version of the full text of the court case
@@ -213,9 +213,14 @@ if __name__ == "__main__":
     # Load Nikhils Results 
     with open('output.json', 'r') as f:
         data = json.load(f)
+        
+        # thresholds what sentences to include in the summary 
         avg = mean_case_length(data)
         std_dev = std_dev_case_length(data)
-        summarized_data = summarize_cases(data)
+        z_score = (len(sent_tokenize(case_text)) - avg) / std_dev
+        multiplier = sigmoid_func(1.75,0.4,z_score,0.25)
+        
+        summarized_data = summarize_cases(data, multiplier)
         f.close()
     # Overwrite Nikhils Results with summarized versions of full-text
     with open('output.json', 'r') as f2:
