@@ -8,6 +8,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from nltk import word_tokenize
 from nltk.stem.porter import PorterStemmer
 import string
+import requests
 
 import sys
 sys.path.insert(1, '../../..')
@@ -21,6 +22,45 @@ def tokenize(text:str):
     trans_table = {ord(c): None for c in string.punctuation + string.digits}    
     stemmer = PorterStemmer()
     return [stemmer.stem(word) for word in word_tokenize(text.translate(trans_table)) if len(word) > 1]
+
+
+def get_court_jurisdictions():
+    """
+    Uses CourtListener's court API to generate a mapping of courts to
+    their corresponding jurisdictions. This takes a few seconds to run
+    and does not depend on the query, so the output should be pre-loaded.
+
+    Returns:
+    dict where keys are federal / state court names <str> and values are
+    either "trial" or "appeal" <str>
+    """
+    # fetch response
+    response = requests.get("https://www.courtlistener.com/api/rest/v3/courts/?format=json").json()
+    courts = response['results']
+
+    while response['next']: 
+        response = requests.get(response['next']).json()
+        courts.extend(response['results'])
+
+    # create mapping
+    jurisdictions = {
+        "F"   : "appeal",
+        "FD"  : "trial",
+        "FB"  : "trial",
+        "FBP" : "appeal",
+        "FS"  : "appeal", # unsure
+        "S"   : "appeal",
+        "SA"  : "appeal",
+        "ST"  : "trial",
+        "SS"  : "trial",  # unsure
+        "SAG" : "trial",  # unsure
+        "C"   : "trial",  # unsure
+        "I"   : "trial",  # unsure
+        "T"   : "trial"   # unsure
+    }
+    # vast majority of cases are not in 'unsure' categories so its no big deal
+
+    return {court['full_name']: jurisdictions[court['jurisdiction']] for court in courts}
 
 
 def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
@@ -72,17 +112,42 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
             cases.remove(case)
             continue
 
-    # enforce case ordering
     case_names = [case['name'] for case in cases]
     case_texts = [case['casebody']['data']['head_matter'].replace("\n", " ") for case in cases]
     case_urls = [case['frontend_url'] for case in cases]
-        
-    # case_opinions = []
-    # for opinions in [case['casebody']['data']['opinions'] for case in cases]:
-    #     for opinion in opinions:
-    #         if opinion['type'] == "majority":
-    #             case_opinions.append(opinion['text'].replace("\n", " "))
-    #             break
+
+    case_opinions = []
+    for opinions in [case['casebody']['data']['opinions'] for case in cases]:
+        for opinion in opinions:
+            if opinion['type'] == "majority":
+                case_opinions.append(opinion['text'].replace("\n", " "))
+                break
+
+    case_jurisdictions = []
+    # load static info on court type
+    with open('data/court_types.json', 'r') as f:
+        court_types = json.load(f)
+    courts_included = set(court_types.keys())
+
+    for court1 in [case['court']['name'] for case in cases]:
+        # find closest court name from CourtListener court api, then obtain its jurisdiction (trial/appeal/etc)
+        closest_court = ""
+
+        # look for pure match first
+        if court1 in courts_included:
+            closest_court = court1
+        else:
+            # otherwise, use jaccard
+            max_score = 0
+            court1_tokens = set(court1.split())
+            for court2 in courts_included:
+                court2_tokens = set(court2.split())
+                score = float(len(court1_tokens & court2_tokens)) / len(court1_tokens | court2_tokens)
+                if score > max_score:
+                    max_score = score
+                    closest_court = court2
+    
+        case_jurisdictions.append(court_types[closest_court])    
 
     ## STEP 3: assign similarity scores to cases ##
 
