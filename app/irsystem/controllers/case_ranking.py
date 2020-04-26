@@ -40,11 +40,12 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
     """
 
     ## STEP 1: load cases ##
+
     debug_message = ''
     try:
         # query data
         url = "https://api.case.law/v1/cases/?search='{}'&full_case=TRUE".format(query)
-        if jurisdiction == 'Federal':
+        if jurisdiction == 'all':
             jurisdiction = ''
         else:
             url = url + '&jurisdiction=' + str(jurisdiction)
@@ -74,6 +75,7 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
     # enforce case ordering
     case_names = [case['name'] for case in cases]
     case_texts = [case['casebody']['data']['head_matter'].replace("\n", " ") for case in cases]
+    case_urls = [case['frontend_url'] for case in cases]
         
     # case_opinions = []
     # for opinions in [case['casebody']['data']['opinions'] for case in cases]:
@@ -100,14 +102,14 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
                         stop_words='english', 
                         norm='l2')
     try:
+        # compute cosine similarity of cases to search query
         tfidf_matrix = vec.fit_transform(case_texts + [query]).toarray()
         query_vec = tfidf_matrix[-1]
         scores = [cosine_similarity(query_vec.reshape(1,-1), doc_vec.reshape(1,-1))[0][0] for doc_vec in tfidf_matrix[:-1]]
 
         ## STEP 4: sort and return cases ##
 
-        # TODO: currently just returns full case, need to find a way to summarize case
-        results = pd.DataFrame(list(zip(case_names, case_texts, scores)), columns=['case_name', 'case_summary', 'score'])
+        results = pd.DataFrame(list(zip(case_names, case_texts, case_urls, scores)), columns=['case_name', 'case_summary', 'case_url', 'score'])
         results = results.sort_values('score', ascending=False).reset_index(drop=True)
         
         return (results.to_dict('records'), debug_message)
@@ -115,7 +117,6 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
         debug_message = 'No cases found. Please enter a new query or try a wider date range!'
         return (None, debug_message)
 
-    # compute cosine similarity of cases to search query
     
 
 if __name__ == "__main__":
