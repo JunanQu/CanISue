@@ -10,8 +10,11 @@ from collections import Counter
 from nltk.tokenize import word_tokenize, sent_tokenize
 import string 
 
-
-
+with open('output.json', 'r') as f:
+        data = json.load(f)
+        
+avg = mean_case_length(data)
+std_dev = std_dev_case_length(data)
 
 def mean_case_length(case_json): 
     """
@@ -185,16 +188,16 @@ def case_summary(case_text, multiplier):
         sentence_scores = create_sentence_scores(sentences, tf_dictionary)
 
         # get the threshold
-        threshold = mean_sentence_score(sentence_scores)
+        mean_sent_score = mean_sentence_score(sentence_scores)
         
         # produce the summary
-        case_summary = create_summary(sentences, sentence_scores, multiplier * threshold)
+        case_summary = create_summary(sentences, sentence_scores, multiplier * mean_sent_score)
         return case_summary
     except Exception as e:
         print(repr(e))
         return None
     
-def summarize_cases(results, multiplier=1.2):
+def summarize_cases(results):
     """
     Returns a list of dicts with fields case_name <str>, case_summary <str>, and score <float> 
     where the case_summary field is a summarized version of the full text of the court case
@@ -205,30 +208,25 @@ def summarize_cases(results, multiplier=1.2):
         # this is actually the full text of the court case
         case_text = case['case_summary']
         # set the full text to a summarized version
-        case['case_summary'] = case_summary(case_text, multiplier)
+        # thresholds what sentences to include in the summary 
+        try:
+            z_score = (len(sent_tokenize(case_text)) - avg) / std_dev
+        except Exception as e:
+            print("error caluculating z-score: " + str(repr(e)))
+            z_score = 0
+        multiplier = sigmoid_func(2,0.5,z_score,0.25)
+        case_text_summary = case_summary(case_text, multiplier)
+        # clean up the summary
+        if not case_text_summary is None:
+            case_text_summary = re.sub(r"\btbe\b", "the", case_text_summary) # replace 'tbe' with 'the'
+            case_text_summary = re.sub(r"\bTbe\b", "the", case_text_summary) # replace 'Tbe' with 'The'
+            case_text_summary = re.sub(r"\bbouse\b", "house", case_text_summary) # replace 'bouse' with 'house'
+            case_text_summary = re.sub(r"'\b", "house", case_text_summary) # replace stand-alone "'" with "" (empty str)
+            case_text_summary = re.sub(r"•", "", case_text_summary) # replace "•" with ""
+            case_text_summary = re.sub(r"■", "", case_text_summary) # replace "■" with ""
+            case_text_summary = re.sub(r"- ", "", case_text_summary) # replace "- " with "" (hyphen-space with empty str)
+        # replace full-text with cleaned up summary
+        case['case_summary'] = case_text_summary
     return results
         
-                     
-if __name__ == "__main__":
-    # Load Nikhils Results 
-    with open('output.json', 'r') as f:
-        data = json.load(f)
-        
-        # thresholds what sentences to include in the summary 
-        avg = mean_case_length(data)
-        std_dev = std_dev_case_length(data)
-        z_score = (len(sent_tokenize(case_text)) - avg) / std_dev
-        multiplier = sigmoid_func(1.75,0.4,z_score,0.25)
-        
-        summarized_data = summarize_cases(data, multiplier)
-        f.close()
-    # Overwrite Nikhils Results with summarized versions of full-text
-    with open('output.json', 'r') as f2:
-        json.dump(summarized_data, f2)            
-            
-
-# =====END TEXT SUMMARIZATION METHODS=======
-                                  
-#        output_message = output_message_1+' \n '+output_message_2
-#        return render_template('search.html', name=project_name, netid=net_id, #output_message=output_message, data=case_summaries[:3]) # Changed display results
 
