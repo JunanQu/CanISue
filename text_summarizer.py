@@ -190,8 +190,8 @@ def case_summary(case_text, multiplier):
         # produce the summary
         case_summary = create_summary(sentences, sentence_scores, multiplier * threshold)
         return case_summary
-    except Exception:
-        
+    except Exception as e:
+        print(repr(e))
         return None
     
 def summarize_cases(results, multiplier=1.2):
@@ -205,7 +205,7 @@ def summarize_cases(results, multiplier=1.2):
         # this is actually the full text of the court case
         case_text = case['case_summary']
         # set the full text to a summarized version
-        case['case_summary'] = case_summary(case_text)
+        case['case_summary'] = case_summary(case_text, multiplier)
     return results
         
                      
