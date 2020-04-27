@@ -212,14 +212,13 @@ def summarize_cases(results, avg, std_dev):
         multiplier = sigmoid_func(2,0.5,z_score,0.25)
         case_text_summary = case_summary(case_text, multiplier)
         # clean up the summary
+        replacements = {'\btbe\b' : 'the', '\bTbe\b' : 'The', '\bbouse\b' : 'house', "'\b" : "", \
+                        '•' : '', '■' : '', '- ' : ' ', ']' : '', '[' : ''}
+                        
         if not case_text_summary is None:
-            case_text_summary = re.sub(r"\btbe\b", "the", case_text_summary) # replace 'tbe' with 'the'
-            case_text_summary = re.sub(r"\bTbe\b", "the", case_text_summary) # replace 'Tbe' with 'The'
-            case_text_summary = re.sub(r"\bbouse\b", "house", case_text_summary) # replace 'bouse' with 'house'
-            case_text_summary = re.sub(r"'\b", "house", case_text_summary) # replace stand-alone "'" with "" (empty str)
-            case_text_summary = re.sub(r"•", "", case_text_summary) # replace "•" with ""
-            case_text_summary = re.sub(r"■", "", case_text_summary) # replace "■" with ""
-            case_text_summary = re.sub(r"- ", "", case_text_summary) # replace "- " with "" (hyphen-space with empty str)
+            for key in replacements:
+                case_text_summary = re.sub(r"%s" % key, replacements[key], case_text_summary)
+           
         # replace full-text with cleaned up summary
         case['case_summary'] = case_text_summary
     return results
