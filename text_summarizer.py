@@ -9,12 +9,7 @@ from nltk.stem import PorterStemmer
 from collections import Counter
 from nltk.tokenize import word_tokenize, sent_tokenize
 import string 
-
-with open('output.json', 'r') as f:
-        data = json.load(f)
-        
-avg = mean_case_length(data)
-std_dev = std_dev_case_length(data)
+import re
 
 def mean_case_length(case_json): 
     """
@@ -197,7 +192,7 @@ def case_summary(case_text, multiplier):
         print(repr(e))
         return None
     
-def summarize_cases(results):
+def summarize_cases(results, avg, std_dev):
     """
     Returns a list of dicts with fields case_name <str>, case_summary <str>, and score <float> 
     where the case_summary field is a summarized version of the full text of the court case
@@ -228,5 +223,10 @@ def summarize_cases(results):
         # replace full-text with cleaned up summary
         case['case_summary'] = case_text_summary
     return results
+
+def wrap_summary(results):
+    avg = mean_case_length(results)
+    std_dev = std_dev_case_length(results)
+    return summarize_cases(results, avg, std_dev)
         
 
