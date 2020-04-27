@@ -79,7 +79,7 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
      - None if API request fails
     """
 
-    ## STEP 1: load cases ##
+    ## ==== <STEP 1: load cases> ==== ##
 
     debug_message = ''
     try:
@@ -104,7 +104,7 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
         debug_message = 'The Case Law API is currently down. Sorry for the inconvenience!'
         return (None, debug_message)
     
-    ## STEP 2: pre-processing ##
+    ## ==== <STEP 2: pre-processing> ==== ##
 
     for case in cases:
         # get rid of non-ok cases
@@ -149,7 +149,47 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
     
         case_jurisdictions.append(court_types[closest_court])    
 
-    ## STEP 3: assign similarity scores to cases ##
+    ## ==== <STEP 3: determine opinion of cases> ==== ##
+    # TODO: check time to run step 3 -- if it's too slow, only compute opinions for top cases
+
+    case_outcomes = []
+
+    trial_regex = re.compile("(verdict|judgment)[ \w]* (plaintiff|defendant)", re.IGNORECASE)
+
+    for case_index in range(len(cases)):
+        match_not_found = False
+        if case_jurisdictions[case_index] == "trial":
+            result_text = re.search(trial_regex, case_texts[case_index])
+            # try first regex on trial cases
+            if result_text:
+                match = result_text.group()
+                if "against" in match:
+                    case_outcomes.append("plaintiff" if match[-9:] == "defendant" else "defendant")
+                else:
+                    case_outcomes.append(match[-9:])
+            else:
+                result_opinion = re.search(trial_regex, case_opinions[case_index])
+                if result_opinion:
+                    match = result_opinion.group()
+                    if "against" in match:
+                        case_outcomes.append("plaintiff" if match[-9:] == "defendant" else "defendant")
+                    else:
+                        case_outcomes.append(match[-9:])
+                else:
+                    # opinions mentioning 'dismissed' near the end are often pro-defendant
+                    idx = case_opinions[case_index].rfind("dismissed")
+                    if idx != -1 and (len(case_opinions[case_index]) - idx) / len(case_opinions[case_index]) < 0.2:
+                        # threshold at 0.2 to verify 'dismissed' is said near the end
+                        case_outcomes.append("defendant")
+                    else:
+                        # try appellate regex logic in case of misclassification
+                        match_not_found = True
+        
+        if case_jurisdictions[case_index] == "appeal" or match_not_found:
+            # TODO: find original verdict (using above logic) and then look for appeal keywords
+            case_outcomes.append("unknown")
+
+    ## ==== <STEP 4: rank cases by similarity to query> ==== ##
 
     # compute tf-idf scores
     if stem_tokens:
@@ -172,7 +212,7 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
         query_vec = tfidf_matrix[-1]
         scores = [cosine_similarity(query_vec.reshape(1,-1), doc_vec.reshape(1,-1))[0][0] for doc_vec in tfidf_matrix[:-1]]
 
-        ## STEP 4: sort and return cases ##
+        ## ==== <STEP 5: sort and return cases> ==== ##
 
         results = pd.DataFrame(list(zip(case_names, case_texts, case_urls, scores)), columns=['case_name', 'case_summary', 'case_url', 'score'])
         results = results.sort_values('score', ascending=False).reset_index(drop=True)
