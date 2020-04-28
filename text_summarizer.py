@@ -213,7 +213,7 @@ def summarize_cases(results, avg, std_dev):
         case_text_summary = case_summary(case_text, multiplier)
         # clean up the summary
         replacements = {'\btbe\b' : 'the', '\bTbe\b' : 'The', '\bbouse\b' : 'house', "'\b" : "", \
-                        '•' : '', '■' : '', '- ' : ' ', ']' : '', '[' : ''}
+                        '•' : '', '■' : '', '- ' : ' ', '\]' : '', '\[' : ''}
                         
         if not case_text_summary is None:
             for key in replacements:
