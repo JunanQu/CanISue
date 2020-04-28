@@ -92,7 +92,9 @@ def search():
         print('sorted similarities')
         res = []
         for k in range(10):
-            res.append(data[index_to_posts_id[sim_posts[k][1]]])
+            e = data[index_to_posts_id[sim_posts[k][1]]]
+            e.update({"score": round(sim_posts[k][0],3)})
+            res.append(e)
         print('added results')
         # =====Reddit cos processing END=========
         print('retrieved reddit cases')
@@ -110,14 +112,14 @@ def search():
             for case in caseresults:
                 case['score'] = round(case['score'], 3)
                 case['fulltext'] = case['case_summary']
-            caseresults = wrap_summary(caseresults)
+            # caseresults = wrap_summary(caseresults)
             for case in caseresults:
                 case['case_summary'] = case['case_summary'][0:min(1000 ,len(case['case_summary']))]
                 if len(case['case_summary']) == 1000:
                     case['case_summary'] = case['case_summary'] + '...'
         # =====Processing results================
         print('completed caselaw retrieval')
-        for i in range(3):
+        for i in range(5):
             post = res[i]
             if (post['selftext'] is not None) and (len(post['selftext'])) > 500:
                 post['selftext'] = post['selftext'][0:500] + '...'
@@ -128,7 +130,7 @@ def search():
         # ============================
 
         return render_template('search.html', name=project_name, netid=net_id,
-                               output_message=output_message, data=res[:3], casedata=caseresults,
+                               output_message=output_message, data=res[:5], casedata=caseresults,
                                caselaw_message=caselaw_message,
                                user_query=query, debug_message = debug_msg,
                                is_error = error)
