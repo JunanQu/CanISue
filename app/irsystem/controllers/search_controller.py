@@ -9,7 +9,7 @@ from app.irsystem.models.helpers import NumpyEncoder as NumpyEncoder
 import os
 # print(os.getcwd())
 from app.irsystem.controllers.case_ranking import rank_cases
-from text_summarizer import summarize_cases
+from text_summarizer import wrap_summary
 
 project_name = "Can I Sue?"
 net_id = "Junan Qu (jq77), Zachary Shine (zs92), Ian Paul (ijp9), Max Chen (mlc294), Nikhil Saggi (ns739)"
@@ -110,7 +110,7 @@ def search():
             for case in caseresults:
                 case['score'] = round(case['score'], 3)
                 case['fulltext'] = case['case_summary']
-            caseresults = summarize_cases(caseresults)
+            caseresults = wrap_summary(caseresults)
             for case in caseresults:
                 case['case_summary'] = case['case_summary'][0:min(1000 ,len(case['case_summary']))]
                 if len(case['case_summary']) == 1000:
