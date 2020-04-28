@@ -112,7 +112,7 @@ def search():
             for case in caseresults:
                 case['score'] = round(case['score'], 3)
                 case['fulltext'] = case['case_summary']
-            # caseresults = wrap_summary(caseresults)
+            caseresults = wrap_summary(caseresults)
             for case in caseresults:
                 case['case_summary'] = case['case_summary'][0:min(1000 ,len(case['case_summary']))]
                 if len(case['case_summary']) == 1000:

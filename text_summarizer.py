@@ -212,7 +212,7 @@ def summarize_cases(results, avg, std_dev):
         multiplier = sigmoid_func(2,0.5,z_score,0.25)
         case_text_summary = case_summary(case_text, multiplier)
         # clean up the summary
-               replacements = {'tbe' : 'the', 'Tbe' : 'The', 'bouse' : 'house', \
+        replacements = {'tbe' : 'the', 'Tbe' : 'The', 'bouse' : 'house', \
                                '•' : '', '■' : '', '- ' : ' ', '\\]' : '', '\\[' : ''}
 
         if not case_text_summary is None:
