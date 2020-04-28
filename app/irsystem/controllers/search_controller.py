@@ -114,6 +114,9 @@ def search():
                 case['fulltext'] = case['case_summary']
             caseresults = wrap_summary(caseresults)
             for case in caseresults:
+                if not case['case_summary']: # if case has no summary
+                    case['case_summary'] = "No case summary found"
+                    continue
                 case['case_summary'] = case['case_summary'][0:min(1000 ,len(case['case_summary']))]
                 if len(case['case_summary']) == 1000:
                     case['case_summary'] = case['case_summary'] + '...'
