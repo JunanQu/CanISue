@@ -19,7 +19,14 @@
 <style>
     .scd_col {
         width: auto;
-        text-align: left;
+        padding-left: 12px;
+        width: 50vmax;
+    }
+
+    .global-search {
+        text-align: center;
+        padding: 10px;
+        width: 70vmax;
     }
 
     .about_btn {
@@ -70,7 +77,7 @@
     <form class="form-inline global-search">
         <h1
             style="font-size: 55px; font-family:Futura; margin-left: 35%; margin-right: 35%; margin-bottom: 20px; color: #4285F4">
-            <a href="/">Can I Sue?</a>
+            <a href="/" style="width: 45vmax;">Can I Sue?</a>
         </h1>
         <a href='/about.html'><button class="about_btn" style="
             position: absolute;
@@ -79,7 +86,7 @@
             "> <span style="font-weight:bolder; font-style: normal; font-size: larger;">Meet the Team
                 </span></button></a>
 
-        <div class="form-group" style="margin-left: 30%;margin-right: 30%;">
+        <div class="form-group" style="margin-left: 22vmax; margin-right: 30vmax;">
             {% if user_query %}
             <!-- If this is a search result, auto fill in the user's query -->
 
@@ -91,12 +98,12 @@
             <button type="submit" class="about_btn"> Search </button>
             <!-- <input type="date" id="test" name="test" placeholder="Earliest Case Date"> -->
             <div class="scd_col">
-                <label style="width: 140px;">Earliest Case Date:</label>
-                <input style="text-align: center; width: auto; margin-right: 0;" placeholder="Any Date Range"
+                <label style="width: 9vw;">Earliest Case Date:</label>
+                <input style="text-align: center; width: 7vw; margin-right: 0;" placeholder="Any Date Range"
                     class="textbox-n scd_col" type="text" onfocus="(this.type='date')" onblur="(this.type='text')"
                     id="earliestdate" name="earliestdate">
                 <!-- Dropdown Menu for States -->
-                <select style="width: 150px;margin-left:10px; margin-right: 7.5em;" class="" id="jurisdisction"
+                <select style="width: 6vw; margin-left:10px; margin-right: 7.5em;" class="" id="jurisdisction"
                     name="state">
                     <option value="all">All Jurisdictions</option>
                     <option value="us">Federal</option>
