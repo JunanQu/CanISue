@@ -74,36 +74,43 @@
 </style>
 
 <body>
+    <a href='/about.html'>
+        <button class="about_btn" style="
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        ">
+            <span style="font-weight:bolder; font-style: normal; font-size: larger;">Meet the Team
+            </span>
+        </button>
+    </a>
     <form class="form-inline global-search">
         <h1
             style="font-size: 55px; font-family:Futura; margin-left: 35%; margin-right: 35%; margin-bottom: 20px; color: #4285F4">
             <a href="/" style="width: 45vmax;">Can I Sue?</a>
         </h1>
-        <a href='/about.html'><button class="about_btn" style="
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            "> <span style="font-weight:bolder; font-style: normal; font-size: larger;">Meet the Team
-                </span></button></a>
+
 
         <div class="form-group" style="margin-left: 22vmax; margin-right: 30vmax;">
             {% if user_query %}
             <!-- If this is a search result, auto fill in the user's query -->
 
 
-            <input id="input" type="text" name="search" class="form-control" placeholder="{{user_query}}">
+            <input id="input" style="width: 23vmax;" type="text" name="search" class="form-control"
+                placeholder="{{user_query}}">
             {%else %}
-            <input id=" input" type="text" name="search" class="form-control" placeholder="Search Cases">
+            <input id=" input" style="width: 23vmax;" type="text" name="search" class="form-control"
+                placeholder="Search Cases">
             {% endif %}
             <button type="submit" class="about_btn"> Search </button>
             <!-- <input type="date" id="test" name="test" placeholder="Earliest Case Date"> -->
             <div class="scd_col">
-                <label style="width: 9vw;">Earliest Case Date:</label>
-                <input style="text-align: center; width: 7vw; margin-right: 0;" placeholder="Any Date Range"
+                <label style="width:auto;">Earliest Case Date:</label>
+                <input style="text-align: center; width: 7vmax; margin-right: 0;" placeholder="Any Date Range"
                     class="textbox-n scd_col" type="text" onfocus="(this.type='date')" onblur="(this.type='text')"
                     id="earliestdate" name="earliestdate">
                 <!-- Dropdown Menu for States -->
-                <select style="width: 6vw; margin-left:10px; margin-right: 7.5em;" class="" id="jurisdisction"
+                <select style="width: 6vw; margin-left:10px; margin-right: 9vmax;" class="" id="jurisdisction"
                     name="state">
                     <option value="all">All Jurisdictions</option>
                     <option value="us">Federal</option>
