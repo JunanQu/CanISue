@@ -24,14 +24,18 @@
 
 
 
-        <div class="form-group">
+        <div class="form-group" style="margin-left: 30%;margin-right: 30%;">
             {% if user_query %}
             <!-- If this is a search result, auto fill in the user's query -->
-            <input id="input" type="text" name="search" class="form-control" placeholder="{{user_query}}">
+
+
+            <input style="margin-bottom: 10px;" id="input" type="text" name="search" class="form-control"
+                placeholder="{{user_query}}">
             {%else %}
-            <input id=" input" type="text" name="search" class="form-control" placeholder="Search Cases">
+            <input style="margin-bottom: 10px;" id=" input" type="text" name="search" class="form-control"
+                placeholder="Search Cases">
             {% endif %}
-            <br>
+            <button style="margin-bottom: 10px;" type="submit" class="btn btn-info"> Search </button>
             <!-- <input type="date" id="test" name="test" placeholder="Earliest Case Date"> -->
             <strong>Earliest Case Date:</strong>
             <input placeholder="Any Date Range" class="textbox-n" type="text" onfocus="(this.type='date')"
@@ -92,8 +96,9 @@
                 <option value="wis">Wisconsin</option>
                 <option value="wyo">Wyoming</option>
             </select>
+
         </div>
-        <button type="submit" class="btn btn-info"> Search </button>
+
         <br>
         {% if not user_query %}
         <center>
