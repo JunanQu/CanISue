@@ -7,7 +7,7 @@ from . import *
 from app.irsystem.models.helpers import *
 from app.irsystem.models.helpers import NumpyEncoder as NumpyEncoder
 import os
-# print(os.getcwd())
+print(os.getcwd())
 from app.irsystem.controllers.case_ranking import rank_cases
 from text_summarizer import wrap_summary
 
@@ -137,3 +137,7 @@ def search():
                                caselaw_message=caselaw_message,
                                user_query=query, debug_message = debug_msg,
                                is_error = error)
+
+@irsystem.route('/about', methods=['GET'])
+def about():
+    return render_template('about.html')
