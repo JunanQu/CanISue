@@ -12,6 +12,7 @@
         $scope.urlerror = false;
         $scope.finished = false;
         $scope.reddit_data = []
+        $scope.caselaw_show = false;
 
         $scope.getResults = function () {
           // get the URL from the input
@@ -48,6 +49,10 @@
                   $log.log(data);
                   $scope.reddit_data = data[3]
                   $scope.caselaw_data = data[4]
+                  $scope.caselaw_show = data[4][0]
+                  if ($scope.caselaw_show == -1) {
+                    $scope.caselaw_show = false
+                  }
                   $scope.loading = false;
                   $scope.submitButtonText = "Search";
                   $scope.wordcounts = data;
