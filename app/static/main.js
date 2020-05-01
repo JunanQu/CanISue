@@ -26,6 +26,7 @@
               getWordCount(results);
               $scope.wordcounts = null;
               $scope.loading = true;
+              $scope.finished = false;
               $scope.submitButtonText = 'Loading...';
               $scope.urlerror = false;
             }).
