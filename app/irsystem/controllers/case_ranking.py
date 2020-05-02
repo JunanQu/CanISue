@@ -155,6 +155,9 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
     case_outcomes = []
 
     trial_regex = re.compile("(verdict|judgment)[ \w]* (plaintiff|defendant)", re.IGNORECASE)
+    positive_keywords = ['affirmed']
+    negative_keywords = ['reversed', 'overruled', 'remanded']
+    appeal_outcome = [""]*len(cases)
 
     for case_index in range(len(cases)):
         match_not_found = False
@@ -179,14 +182,35 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
                     # opinions mentioning 'dismissed' near the end are often pro-defendant
                     idx = case_opinions[case_index].rfind("dismissed")
                     if idx != -1 and (len(case_opinions[case_index]) - idx) / len(case_opinions[case_index]) < 0.2:
-                        # threshold at 0.2 to verify 'dismissed' is said near the end
+                        # threshold at 0.2 to verify 'dismissed' is said near the end (last 20% of opinion)
                         case_outcomes.append("defendant")
                     else:
                         # try appellate regex logic in case of misclassification
                         match_not_found = True
         
         if case_jurisdictions[case_index] == "appeal" or match_not_found:
-            # TODO: find original verdict (using above logic) and then look for appeal keywords
+            opinion = case_opinions[idx].lower()
+            if any(word in opinion for word in negative_keywords):
+                appeal_outcome[idx] = "negative"
+            if any(word in opinion for word in positive_keywords):
+                if appeal_outcome[idx] == "negative":
+                    # both postive and negative keywords
+                    # try again, but only check last few words
+                    opinion = case_opinions[idx].lower()[-200:]
+                    appeal_outcome[idx] = ""
+                    if any(word in opinion for word in negative_keywords):
+                        appeal_outcome[idx] = "negative"
+                    if any(word in opinion for word in positive_keywords):
+                        if appeal_outcome[idx] == "negative":
+                            appeal_outcome[idx] = "not found" # found both keywords, unable to classify
+                        else:
+                            appeal_outcome[idx] = "positive"
+                else:
+                    appeal_outcome[idx] = "positive"
+            if appeal_outcome[idx] == "":
+                appeal_outcome[idx] = "not found" # found no keywords, unable to classify
+
+            # TODO: find original verdict (using above logic)
             case_outcomes.append("unknown")
 
     ## ==== <STEP 4: rank cases by similarity to query> ==== ##
