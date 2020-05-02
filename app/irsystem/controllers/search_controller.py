@@ -11,10 +11,11 @@ import os
 from app.irsystem.controllers.case_ranking import rank_cases
 from text_summarizer import wrap_summary
 
-project_name = "Can I Sue?"
+project_name = "Can I Sue? (Prototype 2)"
 net_id = "Junan Qu (jq77), Zachary Shine (zs92), Ian Paul (ijp9), Max Chen (mlc294), Nikhil Saggi (ns739)"
 
-r = requests.get("https://storage.googleapis.com/can_i_sue_reddit/reddit_data.json") 
+r = requests.get(
+    "https://storage.googleapis.com/can_i_sue_reddit/reddit_data.json")
 data = r.json()
 print("loaded reddit data")
 
@@ -35,9 +36,9 @@ def get_sim(q_vector, post_vector):
 
 @irsystem.route('/', methods=['GET'])
 def search():
-    #Search Query
+    # Search Query
     query = request.args.get('search')
-    #Jurisdiction level ('Federal' or state abbreviation)
+    # Jurisdiction level ('Federal' or state abbreviation)
     jurisdiction = request.args.get('state')
     minimum_date = request.args.get('earliestdate')
     print(query)
@@ -93,14 +94,15 @@ def search():
         res = []
         for k in range(10):
             e = data[index_to_posts_id[sim_posts[k][1]]]
-            e.update({"score": round(sim_posts[k][0],3)})
+            e.update({"score": round(sim_posts[k][0], 3)})
             res.append(e)
         print('added results')
         # =====Reddit cos processing END=========
         print('retrieved reddit cases')
         # =====CaseLaw Retrieval=====
         print('begin caselaw retrieval')
-        caselaw, debug_msg = rank_cases(query, jurisdiction = jurisdiction, earlydate = minimum_date)
+        caselaw, debug_msg = rank_cases(
+            query, jurisdiction=jurisdiction, earlydate=minimum_date)
         error = False
         if not caselaw:
             # API call to CAP failed
@@ -114,7 +116,8 @@ def search():
                 case['fulltext'] = case['case_summary']
             caseresults = wrap_summary(caseresults)
             for case in caseresults:
-                case['case_summary'] = case['case_summary'][0:min(1000 ,len(case['case_summary']))]
+                case['case_summary'] = case['case_summary'][0:min(
+                    1000, len(case['case_summary']))]
                 if len(case['case_summary']) == 1000:
                     case['case_summary'] = case['case_summary'] + '...'
         # =====Processing results================
@@ -126,11 +129,11 @@ def search():
 
         caselaw_message = "Historical precedences:"
         output_message = "Past discussions:"
-        print('rendering template..')        
+        print('rendering template..')
         # ============================
 
         return render_template('search.html', name=project_name, netid=net_id,
                                output_message=output_message, data=res[:5], casedata=caseresults,
                                caselaw_message=caselaw_message,
-                               user_query=query, debug_message = debug_msg,
-                               is_error = error)
+                               user_query=query, debug_message=debug_msg,
+                               is_error=error)
