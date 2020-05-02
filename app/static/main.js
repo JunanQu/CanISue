@@ -52,8 +52,15 @@
                 } else if (status === 200) {
                   $log.log(data);
                   $scope.reddit_data = data[3]
-                  $scope.caselaw_data = data[4]
-                  $scope.caselaw_show = data[4][0]
+
+                  if (data === undefined || data[4] === undefined) {
+                    $scope.caselaw_show = -1
+                    $scope.caselaw_data = []
+                  } else {
+                    $scope.caselaw_show = data[4][0]
+                    $scope.caselaw_data = data[4]
+                  }
+
                   $scope.output_message = data[2]
                   $scope.caselaw_message = data[5]
                   $scope.debug_message = data[7]
