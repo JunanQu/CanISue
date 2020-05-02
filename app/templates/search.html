@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zxx" class="no-js" ng-app="WordcountApp">
+<html lang="zxx" class="no-js" ng-app="canisueApp">
 
 <head>
     <link href="https://fonts.googleapis.com/css?family=Montserrat:300,500,600" rel="stylesheet">
@@ -21,7 +21,6 @@
     <script src="{{ url_for('static', filename='main.js') }}"></script>
 
 </head>
-
 
 <style>
     .scd_col {
@@ -80,10 +79,7 @@
     }
 </style>
 
-<body ng-controller="WordcountController">
-
-
-
+<body ng-controller="appController">
     <a href='/about.html'>
         <button class="about_btn" style="
         position: absolute;
@@ -100,7 +96,6 @@
             style="font-size: 55px; font-family:Futura; margin-left: 35%; margin-right: 35%; margin-bottom: 20px; color: #4285F4">
             <a href="/" style="width: 45vmax;">Can I Sue?</a>
         </h1>
-
 
         <div class="form-group" style="margin-left: 22vmax; ">
 
@@ -127,7 +122,7 @@
                 <!-- Dropdown Menu for States -->
                 <select ng-model="state" style="width: auto; margin-left:10px; margin-right: 0;" class=""
                     id="jurisdisction" name="state">
-                    <option value="all">All Jurisdictions</option>
+                    <option value="all" selected>All Jurisdictions</option>
                     <option value="us">Federal</option>
                     <option value="ala">Alabama</option>
                     <option value="alaska">Alaska</option>
@@ -182,6 +177,13 @@
                     <option value="wyo">Wyoming</option>
                 </select>
             </div>
+
+            <!-- SPINNER START -->
+            <center>
+                <img src="{{ url_for('static',
+    filename='spinner_3.gif') }}" ng-show="loading">
+            </center>
+            <!-- SPINNER END -->
         </div>
 
         <br>
@@ -195,34 +197,46 @@
         {% endif %}
     </form>
 
+    <!-- ERROR MESSAGE START -->
+    <center>
+        {% raw %}
+        <div class="alert-error" ng-show="urlerror">
+            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+            {{debug_message}}
+        </div>
+        {% endraw %}
+    </center>
+    <!-- ERROR MESSAGE END -->
+
     <!--Start -->
     <section class="feature-area" ng-show="finished">
 
+        <!-- CASELAW SECTION START-->
         <div ng-show="caselaw_show"
-            style="overflow: auto; width:45%; height:800px; display:inline-block; margin-left: 5%; border: 5px solid black ;">
+            style="float:left; margin-left:3%; overflow: auto; width:45%; height:800px; display:inline-block; border: 5px solid black ;">
             <div class=" container" style="text-align: center; width:95%">
-
+                {% raw %}
+                <h1 style="white-space: pre;">{{caselaw_message}}</h1>
+                {% endraw %}
                 <div class="feature-inner row">
                     {% raw %}
                     <div ng-repeat="element in caselaw_data" class="feature-item"
                         style="border-color:black;border-style: solid; margin-bottom: 10px;">
                         <i class="ti-crown" style="padding-top: 5px;"></i>
                         <h5>
-                            {{element['title']}}
+                            {{element['case_name']}}
                         </h5>
                         <br>
                         <div class="wow fadeIn" data-wow-duration="1s" data-wow-delay=".1s">
                             <p>
                                 {{element['case_summary']}}
                             </p>
-
                             <p>
                                 <span style="font-weight: bold;
                                 font-size: large;
                                 font-style: normal;
                                 color: rgba(9, 9, 9, 0.845)"> Score: {{element['score']}} </span>
                             </p>
-
                             <p>
                                 <a href="{{element['case_url']}}" target="_blank">Read full case</a>
                             </p>
@@ -232,9 +246,16 @@
                 </div>
             </div>
         </div>
-        <div style="overflow: auto; width:45%; height:800px; display:inline-block; border: 5px solid black ;">
+        <!-- CASELAW SECTION END-->
+
+
+        <!-- REDDIT SECTION START-->
+        <div
+            style="float:right; margin-right:3%; overflow: auto; width:45%; height:800px; display:inline-block; border: 5px solid black ;">
             <div class="container" style="text-align: center; width:95%">
-                <!-- <h1 style="white-space: pre;">{{output_message}}</h1> -->
+                {% raw %}
+                <h1 style="white-space: pre;">{{output_message}}</h1>
+                {% endraw %}
                 <div class="feature-inner row">
                     {% raw %}
                     <div ng-repeat='element in reddit_data' class="feature-item"
@@ -261,9 +282,8 @@
             </div>
         </div>
     </section>
+    <!-- REDDIT SECTION END -->
 
-    <img class="col-sm-3 col-sm-offset-4" src="{{ url_for('static',
-    filename='spinner.gif') }}" ng-show="loading">
 
 
 

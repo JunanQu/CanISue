@@ -60,6 +60,8 @@ status = 0
 def wrap_fun(query, minimum_date, jurisdiction):
     global status
 
+    print("!!!!")
+    print(query, minimum_date, jurisdiction)
     # Search Query
 
     # Jurisdiction level ('Federal' or state abbreviation)
@@ -156,6 +158,7 @@ def wrap_fun(query, minimum_date, jurisdiction):
             for case in caseresults:
                 if not case['case_summary']:  # if case has no summary
                     case['case_summary'] = "No case summary found"
+                    # case['case_summary'] = case['fulltext']
                     continue
                 case['case_summary'] = case['case_summary'][0:min(
                     1000, len(case['case_summary']))]
@@ -226,6 +229,14 @@ def get_counts():
     min_date = data[1]
     state = data[2]
 
+    if min_date is None:
+        min_date = ''
+    if state is None:
+        state = 'all'
+
+    print(query)
+    print(min_date)
+    print(state)
     job = q.enqueue_call(
         func=wrap_fun, args=(query, min_date,
                              state), result_ttl=5000

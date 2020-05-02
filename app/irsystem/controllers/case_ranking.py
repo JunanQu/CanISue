@@ -1,3 +1,4 @@
+import utils
 import json
 import re
 import numpy as np
@@ -11,19 +12,18 @@ import string
 
 import sys
 sys.path.insert(1, '../../..')
-import utils
 
 
-def tokenize(text:str):
+def tokenize(text: str):
     """
     Tokenizer that removes stemmings from tokens. (currently unused)
     """
-    trans_table = {ord(c): None for c in string.punctuation + string.digits}    
+    trans_table = {ord(c): None for c in string.punctuation + string.digits}
     stemmer = PorterStemmer()
     return [stemmer.stem(word) for word in word_tokenize(text.translate(trans_table)) if len(word) > 1]
 
 
-def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
+def rank_cases(query: str, stem_tokens=False, jurisdiction='', earlydate=''):
     """
     Finds cases relevant to query from CAP API based on the similarity of the
     case summary to the query. Cases are then ranked by tfidf cosine similarity
@@ -44,7 +44,8 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
     debug_message = ''
     try:
         # query data
-        url = "https://api.case.law/v1/cases/?search='{}'&full_case=TRUE".format(query)
+        url = "https://api.case.law/v1/cases/?search='{}'&full_case=TRUE".format(
+            query)
         if jurisdiction == 'all':
             jurisdiction = ''
         else:
@@ -53,9 +54,10 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
             url = url + '&decision_date_min=' + str(earlydate)
         response = utils.get_request_caselaw(url).json()
         cases = response['results']
-        
-        i = 1 # limit to 5 requests (500 cases) because that should be more than enough
-        while response['next'] and i < 5: 
+
+        # limit to 5 requests (500 cases) because that should be more than enough
+        i = 1
+        while response['next'] and i < 5:
             response = utils.get_request_caselaw(response['next']).json()
             cases.extend(response['results'])
             i += 1
@@ -63,7 +65,7 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
         print("API request failed")
         debug_message = 'The Case Law API is currently down. Sorry for the inconvenience!'
         return (None, debug_message)
-    
+
     ## STEP 2: pre-processing ##
 
     for case in cases:
@@ -74,9 +76,10 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
 
     # enforce case ordering
     case_names = [case['name'] for case in cases]
-    case_texts = [case['casebody']['data']['head_matter'].replace("\n", " ") for case in cases]
+    case_texts = [case['casebody']['data']
+                  ['head_matter'].replace("\n", " ") for case in cases]
     case_urls = [case['frontend_url'] for case in cases]
-        
+
     # case_opinions = []
     # for opinions in [case['casebody']['data']['opinions'] for case in cases]:
     #     for opinion in opinions:
@@ -89,35 +92,40 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
     # compute tf-idf scores
     if stem_tokens:
         stemmer = PorterStemmer()
-        vec = TfidfVectorizer(tokenizer=tokenize, 
-                        min_df=.01, 
-                        max_df=0.8, 
-                        max_features=5000, 
-                        stop_words=[stemmer.stem(item) for item in ENGLISH_STOP_WORDS], 
-                        norm='l2')
+        vec = TfidfVectorizer(tokenizer=tokenize,
+                              min_df=.01,
+                              max_df=0.8,
+                              max_features=5000,
+                              stop_words=[stemmer.stem(item)
+                                          for item in ENGLISH_STOP_WORDS],
+                              norm='l2')
     else:
-        vec = TfidfVectorizer(min_df=.01, 
-                        max_df=0.8, 
-                        max_features=5000, 
-                        stop_words='english', 
-                        norm='l2')
+        vec = TfidfVectorizer(min_df=.01,
+                              max_df=0.8,
+                              max_features=5000,
+                              stop_words='english',
+                              norm='l2')
     try:
         # compute cosine similarity of cases to search query
+
+        print("107"+query)
         tfidf_matrix = vec.fit_transform(case_texts + [query]).toarray()
         query_vec = tfidf_matrix[-1]
-        scores = [cosine_similarity(query_vec.reshape(1,-1), doc_vec.reshape(1,-1))[0][0] for doc_vec in tfidf_matrix[:-1]]
+        scores = [cosine_similarity(query_vec.reshape(
+            1, -1), doc_vec.reshape(1, -1))[0][0] for doc_vec in tfidf_matrix[:-1]]
 
         ## STEP 4: sort and return cases ##
 
-        results = pd.DataFrame(list(zip(case_names, case_texts, case_urls, scores)), columns=['case_name', 'case_summary', 'case_url', 'score'])
-        results = results.sort_values('score', ascending=False).reset_index(drop=True)
-        
+        results = pd.DataFrame(list(zip(case_names, case_texts, case_urls, scores)), columns=[
+                               'case_name', 'case_summary', 'case_url', 'score'])
+        results = results.sort_values(
+            'score', ascending=False).reset_index(drop=True)
+
         return (results.to_dict('records'), debug_message)
     except:
-        debug_message = 'No cases found. Please enter a new query or try a wider date range!'
+        debug_message = 'No cases found via CaseLaw API. Please enter a new query or try a wider date range!'
         return (None, debug_message)
 
-    
 
 if __name__ == "__main__":
     with open('output.json', 'w') as f:
