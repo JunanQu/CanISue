@@ -23,16 +23,15 @@
 </head>
 
 <style>
-    .scd_col {
-        width: auto;
-        padding-left: 12px;
-        width: 50vmax;
+    .scd_col {}
+
+    .form-group {
+        width: 45vmax;
     }
 
     .global-search {
         text-align: center;
         padding: 10px;
-        width: 70vmax;
     }
 
     .about_btn {
@@ -64,12 +63,12 @@
 
     .about_btn:hover {
         background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #337ab7), color-stop(1, #6da3d2));
-        background: -moz-linear-gradient(top, #337ab7 5%, #6da3d2 100%);
+        background: -moz-linear-gradient(top, #337ab7 5%, #6397c4 100%);
         background: -webkit-linear-gradient(top, #337ab7 5%, #6da3d2 100%);
         background: -o-linear-gradient(top, #337ab7 5%, #6da3d2 100%);
         background: -ms-linear-gradient(top, #337ab7 5%, #6da3d2 100%);
         background: linear-gradient(to bottom, #337ab7 5%, #6da3d2 100%);
-        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#80b5ea', endColorstr='#bddbfa', GradientType=0);
+        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#337ab7', endColorstr='#6da3d2', GradientType=0);
         background-color: #337ab7;
     }
 
@@ -86,7 +85,7 @@
         top: 10px;
         right: 10px;
         ">
-            <span style="font-weight:bolder; font-style: normal; font-size: larger;">Meet the Team
+            <span style="font-weight:bolder; font-style: normal; font-size: larger;">About
             </span>
         </button>
     </a>
@@ -94,10 +93,10 @@
     <form class="form-inline global-search" role="form" ng-submit="getResults()">
         <h1
             style="font-size: 55px; font-family:Futura; margin-left: 35%; margin-right: 35%; margin-bottom: 20px; color: #4285F4">
-            <a href="/" style="width: 45vmax;">Can I Sue?</a>
+            <a href="/">Can I Sue?</a>
         </h1>
 
-        <div class="form-group" style="margin-left: 22vmax; ">
+        <div class="form-group" style="">
 
             {% if user_query %}
             <!-- If this is a search result, auto fill in the user's query -->
@@ -118,6 +117,11 @@
                 <input ng-model="min_date" style="text-align: center; width: auto; margin-right: 0;"
                     placeholder="Any Date Range" class="textbox-n scd_col" type="text" onfocus="(this.type='date')"
                     onblur="(this.type='text')" id="earliestdate" name="earliestdate">
+
+
+            </div>
+
+            <div class="scd_col">
                 <!-- Dropdown Menu for States -->
                 <select ng-init="state || 'all'" style="width: auto; margin-left:10px; margin-right: 0;" class=""
                     id="jurisdisction" name="state" ng-model="state">
@@ -176,13 +180,14 @@
                     <option value="wyo">Wyoming</option>
                 </select>
             </div>
+        </div>
 
-            <!-- SPINNER START -->
-            <center>
-                <img src="{{ url_for('static',
-    filename='spinner_.gif') }}" ng-show="loading">
-            </center>
-            <!-- SPINNER END -->
+        <!-- SPINNER START -->
+        <center>
+            <img src="{{ url_for('static',
+    filename='spinner_3.gif') }}" ng-show="loading">
+        </center>
+        <!-- SPINNER END -->
         </div>
 
         <br>
