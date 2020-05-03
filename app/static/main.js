@@ -13,12 +13,13 @@
         $scope.finished = false;
         $scope.reddit_data = []
         $scope.caselaw_show = false;
+        $scope.disclaimer_show = true;
         $scope.debug_message = ''
         $scope.output_message = ''
         $scope.caselaw_message = ''
 
         $scope.getResults = function () {
-          // get the URL from the input
+          // get the input
           var userInput = $scope.url;
           var min_date = $scope.min_date
           var state = $scope.state
@@ -32,6 +33,7 @@
               $scope.finished = false;
               $scope.submitButtonText = 'Loading...';
               $scope.urlerror = false;
+              $scope.disclaimer_show = false;
             }).
             error(function (error) {
               $log.log(error);

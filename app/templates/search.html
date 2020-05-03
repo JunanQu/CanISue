@@ -113,16 +113,15 @@
             <button ng-disabled="loading" type="submit" class="about_btn"> {{submitButtonText}} </button>
             {% endraw %}
 
-            <!-- <input type="date" id="test" name="test" placeholder="Earliest Case Date"> -->
             <div class="scd_col">
                 <label style="width:auto;">Earliest Case Date:</label>
                 <input ng-model="min_date" style="text-align: center; width: auto; margin-right: 0;"
                     placeholder="Any Date Range" class="textbox-n scd_col" type="text" onfocus="(this.type='date')"
                     onblur="(this.type='text')" id="earliestdate" name="earliestdate">
                 <!-- Dropdown Menu for States -->
-                <select ng-model="state" style="width: auto; margin-left:10px; margin-right: 0;" class=""
-                    id="jurisdisction" name="state">
-                    <option value="all" selected>All Jurisdictions</option>
+                <select ng-init="state || 'all'" style="width: auto; margin-left:10px; margin-right: 0;" class=""
+                    id="jurisdisction" name="state" ng-model="state">
+                    <option value="" selected>All Jurisdictions</option>
                     <option value="us">Federal</option>
                     <option value="ala">Alabama</option>
                     <option value="alaska">Alaska</option>
@@ -181,20 +180,18 @@
             <!-- SPINNER START -->
             <center>
                 <img src="{{ url_for('static',
-    filename='spinner_3.gif') }}" ng-show="loading">
+    filename='spinner_.gif') }}" ng-show="loading">
             </center>
             <!-- SPINNER END -->
         </div>
 
         <br>
-        {% if not user_query %}
         <center>
-            <div class="alert-disclaimer">
+            <div class="alert-disclaimer" ng-show="disclaimer_show">
                 <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
                 Disclaimer: The <i>Can I Sue?</i> team is not responsible for any legal decisions made by its users.
             </div>
         </center>
-        {% endif %}
     </form>
 
     <!-- ERROR MESSAGE START -->
