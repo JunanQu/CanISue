@@ -19,7 +19,7 @@
         $scope.caselaw_message = ''
 
         $scope.getResults = function () {
-          // get the URL from the input
+          // get the input
           var userInput = $scope.url;
           var min_date = $scope.min_date
           var state = $scope.state

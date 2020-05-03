@@ -231,7 +231,7 @@ def get_counts():
 
     if min_date is None:
         min_date = ''
-    if state is None:
+    if (state is None) or (state == ""):
         state = 'all'
 
     print(query)
