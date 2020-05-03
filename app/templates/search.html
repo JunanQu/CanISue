@@ -187,14 +187,12 @@
         </div>
 
         <br>
-        {% if not user_query %}
         <center>
-            <div class="alert-disclaimer">
+            <div class="alert-disclaimer" ng-show="disclaimer_show">
                 <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
                 Disclaimer: The <i>Can I Sue?</i> team is not responsible for any legal decisions made by its users.
             </div>
         </center>
-        {% endif %}
     </form>
 
     <!-- ERROR MESSAGE START -->

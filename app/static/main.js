@@ -13,6 +13,7 @@
         $scope.finished = false;
         $scope.reddit_data = []
         $scope.caselaw_show = false;
+        $scope.disclaimer_show = true;
         $scope.debug_message = ''
         $scope.output_message = ''
         $scope.caselaw_message = ''
@@ -32,6 +33,7 @@
               $scope.finished = false;
               $scope.submitButtonText = 'Loading...';
               $scope.urlerror = false;
+              $scope.disclaimer_show = false;
             }).
             error(function (error) {
               $log.log(error);
