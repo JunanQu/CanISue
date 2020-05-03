@@ -6,6 +6,7 @@ import os
 from sklearn.feature_extraction.text import TfidfVectorizer, ENGLISH_STOP_WORDS
 from sklearn.metrics.pairwise import cosine_similarity
 from nltk import word_tokenize
+import nltk.tokenize
 from nltk.stem.porter import PorterStemmer
 import string
 
@@ -77,6 +78,28 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
     # enforce case ordering
     case_names = [case['name'] for case in cases]
     case_texts = [case['casebody']['data']['head_matter'].replace("\n", " ") for case in cases]
+    
+    case_opinions = []
+    for opinions in [case['casebody']['data']['opinions'] for case in cases]:
+        for opinion in opinions:
+            if opinion['type'] == "majority":
+                case_opinions.append(opinion['text'].replace("\n", " "))
+                break
+
+    case_summaries = []
+    for idx, case in enumerate(cases):
+        case_sents = {(k[:-1] if k[-1] == "." else k):False for k in nltk.tokenize.sent_tokenize(case_texts[idx]) + nltk.tokenize.sent_tokenize(case_opinions[idx])}
+        important_lines = case['preview']
+    
+        for line in important_lines:
+            line = line.replace("<em class='search_highlight'>", "").replace("</em>", "").replace(".", "")
+            for sent,_ in case_sents.items():
+                if line in sent:
+                    case_sents[sent] = True
+                    break
+            
+        case_summaries.append(". ".join([sent for sent,valid in case_sents.items() if valid]))
+
     case_urls = [case['frontend_url'] for case in cases]
 
     documents = [TaggedDocument(doc, [i]) for i, doc in enumerate(case_texts)]
@@ -92,7 +115,7 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
         case_dict = dict()
         case_dict.update({
             'case_name':case_names[i[0]],
-            'case_summary':case_texts[i[0]],
+            'case_summary':case_summaries[i[0]],
             'case_url':case_urls[i[0]],
             'score':i[1]
         })
