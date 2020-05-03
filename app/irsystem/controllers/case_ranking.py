@@ -150,69 +150,93 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
         case_jurisdictions.append(court_types[closest_court])    
 
     ## ==== <STEP 3: determine opinion of cases> ==== ##
-    # TODO: check time to run step 3 -- if it's too slow, only compute opinions for top cases
-
     case_outcomes = []
 
     trial_regex = re.compile("(verdict|judgment)[ \w]* (plaintiff|defendant)", re.IGNORECASE)
+    appeal_regex = re.compile("(plaintiff|defendant)s* (in|brings) error", re.IGNORECASE)
     positive_keywords = ['affirmed']
     negative_keywords = ['reversed', 'overruled', 'remanded']
-    appeal_outcome = [""]*len(cases)
+    appeal_outcomes = [""]*len(cases)
 
     for case_index in range(len(cases)):
-        match_not_found = False
-        if case_jurisdictions[case_index] == "trial":
-            result_text = re.search(trial_regex, case_texts[case_index])
-            # try first regex on trial cases
-            if result_text:
-                match = result_text.group()
-                if "against" in match:
-                    case_outcomes.append("plaintiff" if match[-9:] == "defendant" else "defendant")
-                else:
-                    case_outcomes.append(match[-9:])
-            else:
-                result_opinion = re.search(trial_regex, case_opinions[case_index])
-                if result_opinion:
-                    match = result_opinion.group()
-                    if "against" in match:
-                        case_outcomes.append("plaintiff" if match[-9:] == "defendant" else "defendant")
-                    else:
-                        case_outcomes.append(match[-9:])
-                else:
-                    # opinions mentioning 'dismissed' near the end are often pro-defendant
-                    idx = case_opinions[case_index].rfind("dismissed")
-                    if idx != -1 and (len(case_opinions[case_index]) - idx) / len(case_opinions[case_index]) < 0.2:
-                        # threshold at 0.2 to verify 'dismissed' is said near the end (last 20% of opinion)
-                        case_outcomes.append("defendant")
-                    else:
-                        # try appellate regex logic in case of misclassification
-                        match_not_found = True
-        
-        if case_jurisdictions[case_index] == "appeal" or match_not_found:
-            opinion = case_opinions[idx].lower()
+        appeal_regex_failed = False
+        case_juris = case_jurisdictions[case_index]
+
+        # Part 1: if appeal case, find appeal outcome
+
+        if case_juris == "appeal":
+            opinion = case_opinions[case_index].lower()
             if any(word in opinion for word in negative_keywords):
-                appeal_outcome[idx] = "negative"
+                appeal_outcomes[case_index] = "negative"
             if any(word in opinion for word in positive_keywords):
-                if appeal_outcome[idx] == "negative":
+                if appeal_outcomes[case_index] == "negative":
                     # both postive and negative keywords
                     # try again, but only check last few words
-                    opinion = case_opinions[idx].lower()[-200:]
-                    appeal_outcome[idx] = ""
+                    opinion = opinion[-200:]
+                    appeal_outcomes[case_index] = ""
                     if any(word in opinion for word in negative_keywords):
-                        appeal_outcome[idx] = "negative"
+                        appeal_outcomes[case_index] = "negative"
                     if any(word in opinion for word in positive_keywords):
-                        if appeal_outcome[idx] == "negative":
-                            appeal_outcome[idx] = "not found" # found both keywords, unable to classify
+                        if appeal_outcomes[case_index] == "negative":
+                            # found both keywords, unable to classify
+                            case_juris = "trial" # evaluate as trial case
                         else:
-                            appeal_outcome[idx] = "positive"
+                            appeal_outcomes[case_index] = "positive"
                 else:
-                    appeal_outcome[idx] = "positive"
-            if appeal_outcome[idx] == "":
-                appeal_outcome[idx] = "not found" # found no keywords, unable to classify
+                    appeal_outcomes[case_index] = "positive"
+            if appeal_outcomes[case_index] == "":
+                # found no keywords, unable to classify
+                case_juris = "trial" # evaluate as trial case
 
-            # TODO: find original verdict (using above logic)
-            case_outcomes.append("unknown")
+        # Part 2: find trial case outcome / original appeal case outcome
 
+        # find cases with phrase "verdict/judgement ... plaintiff/defendant"
+        result_text = re.search(trial_regex, case_texts[case_index])
+        if result_text:
+            match = result_text.group()
+            if "against" in match:
+                case_outcomes.append("plaintiff" if match[-9:].lower() == "defendant" else "defendant")
+            else:
+                case_outcomes.append(match[-9:].lower())
+        else:
+            result_opinion = re.search(trial_regex, case_opinions[case_index])
+            if result_opinion:
+                match = result_opinion.group()
+                if "against" in match:
+                    case_outcomes.append("plaintiff" if match[-9:].lower() == "defendant" else "defendant")
+                else:
+                    case_outcomes.append(match[-9:].lower())
+            else:
+                # find cases with phrase "plaintiff/defendant in/brings error" **for appeal cases only**
+                if case_juris == "appeal":
+                    result_text = re.search(appeal_regex, case_texts[case_index])
+                    if result_text:
+                        match = result_text.group()
+                        # caveat: making assumption that the appellant was the losing party
+                        case_outcomes.append("plaintiff" if match[:9].lower() == "defendant" else "defendant")
+                    else:
+                        result_opinion = re.search(appeal_regex, case_opinions[case_index])
+                        if result_opinion:
+                            match = result_opinion.group()
+                            # caveat: making assumption that the appellant was the losing party
+                            case_outcomes.append("plaintiff" if match[:9].lower() == "defendant" else "defendant")
+                        else:
+                            appeal_regex_failed = True
+                if case_juris == "trial" or appeal_regex_failed:
+                    # opinions mentioning 'dismissed' near the end are often pro-defendant
+                    idx = case_opinions[case_index].rfind("dismissed")
+                    if idx != -1 and (case_juris == 'appeal' or (len(case_opinions[case_index]) - idx) / len(case_opinions[case_index]) < 0.2):
+                        # threshold at 0.2 **for trial cases** to verify 'dismissed' is said near the end (last 20% of opinion)
+                        case_outcomes.append("defendant")
+                    else:
+                        case_outcomes.append("unknown")
+        
+        # Part 3: For appeal cases, adjust original decision based on appeal outcome
+
+        if case_juris == "appeal" and case_outcomes[-1] != "unknown":
+            if appeal_outcomes[-1] == "negative":
+                case_outcomes[-1] = ("plaintiff" if case_outcomes[-1].lower() == "defendant" else "defendant")
+ 
     ## ==== <STEP 4: rank cases by similarity to query> ==== ##
 
     # compute tf-idf scores
@@ -249,5 +273,4 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
     
 
 if __name__ == "__main__":
-    with open('output.json', 'w') as f:
-        json.dump(rank_cases("fence built on my property"), f)
+    rank_cases("neighbor dog destroyed garden")
