@@ -13,6 +13,8 @@ import sys
 sys.path.insert(1, '../../..')
 import utils
 
+from gensim.models.doc2vec import Doc2Vec, TaggedDocument
+
 
 def tokenize(text:str):
     """
@@ -76,6 +78,27 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
     case_names = [case['name'] for case in cases]
     case_texts = [case['casebody']['data']['head_matter'].replace("\n", " ") for case in cases]
     case_urls = [case['frontend_url'] for case in cases]
+
+    documents = [TaggedDocument(doc, [i]) for i, doc in enumerate(case_texts)]
+    model = Doc2Vec(documents, vector_size=5, window=2, min_count=1, workers=4)
+    updated_query = model.infer_vector([query])
+    sims = model.docvecs.most_similar([updated_query], topn=10)
+    print(sims)
+    out_cases = []
+    # for doc in sims:
+    #     print(documents[doc[0]])
+    # out_cases = dict()
+    for i in sims:
+        case_dict = dict()
+        case_dict.update({
+            'case_name':case_names[i[0]],
+            'case_summary':case_texts[i[0]],
+            'case_url':case_urls[i[0]],
+            'score':i[1]
+        })
+        out_cases.append(case_dict)
+    return (out_cases, debug_message)
+
         
     # case_opinions = []
     # for opinions in [case['casebody']['data']['opinions'] for case in cases]:
@@ -87,38 +110,39 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
     ## STEP 3: assign similarity scores to cases ##
 
     # compute tf-idf scores
-    if stem_tokens:
-        stemmer = PorterStemmer()
-        vec = TfidfVectorizer(tokenizer=tokenize, 
-                        min_df=.01, 
-                        max_df=0.8, 
-                        max_features=5000, 
-                        stop_words=[stemmer.stem(item) for item in ENGLISH_STOP_WORDS], 
-                        norm='l2')
-    else:
-        vec = TfidfVectorizer(min_df=.01, 
-                        max_df=0.8, 
-                        max_features=5000, 
-                        stop_words='english', 
-                        norm='l2')
-    try:
-        # compute cosine similarity of cases to search query
-        tfidf_matrix = vec.fit_transform(case_texts + [query]).toarray()
-        query_vec = tfidf_matrix[-1]
-        scores = [cosine_similarity(query_vec.reshape(1,-1), doc_vec.reshape(1,-1))[0][0] for doc_vec in tfidf_matrix[:-1]]
+    # if stem_tokens:
+    #     stemmer = PorterStemmer()
+    #     vec = TfidfVectorizer(tokenizer=tokenize, 
+    #                     min_df=.01, 
+    #                     max_df=0.8, 
+    #                     max_features=5000, 
+    #                     stop_words=[stemmer.stem(item) for item in ENGLISH_STOP_WORDS], 
+    #                     norm='l2')
+    # else:
+    #     vec = TfidfVectorizer(min_df=.01, 
+    #                     max_df=0.8, 
+    #                     max_features=5000, 
+    #                     stop_words='english', 
+    #                     norm='l2')
+    # try:
+    #     # compute cosine similarity of cases to search query
+    #     tfidf_matrix = vec.fit_transform(case_texts + [query]).toarray()
+    #     query_vec = tfidf_matrix[-1]
+    #     scores = [cosine_similarity(query_vec.reshape(1,-1), doc_vec.reshape(1,-1))[0][0] for doc_vec in tfidf_matrix[:-1]]
 
-        ## STEP 4: sort and return cases ##
+    #     ## STEP 4: sort and return cases ##
 
-        results = pd.DataFrame(list(zip(case_names, case_texts, case_urls, scores)), columns=['case_name', 'case_summary', 'case_url', 'score'])
-        results = results.sort_values('score', ascending=False).reset_index(drop=True)
+    #     results = pd.DataFrame(list(zip(case_names, case_texts, case_urls, scores)), columns=['case_name', 'case_summary', 'case_url', 'score'])
+    #     results = results.sort_values('score', ascending=False).reset_index(drop=True)
         
-        return (results.to_dict('records'), debug_message)
-    except:
-        debug_message = 'No cases found. Please enter a new query or try a wider date range!'
-        return (None, debug_message)
+    #     return (results.to_dict('records'), debug_message)
+    # except:
+    #     debug_message = 'No cases found. Please enter a new query or try a wider date range!'
+    #     return (None, debug_message)
 
     
 
 if __name__ == "__main__":
-    with open('output.json', 'w') as f:
-        json.dump(rank_cases("fence built on my property"), f)
+    rank_cases("fence built on my property")
+    # with open('output.json', 'w') as f:
+    #     json.dump(rank_cases("fence built on my property"), f)
