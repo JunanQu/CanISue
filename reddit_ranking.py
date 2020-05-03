@@ -8,6 +8,6 @@ def rank_reddit(query):
   scores = list()
   for pair in sims:
     indices.append(pair[0])
-    scores.append(round(pair[1],3))
+    scores.append((round(pair[1],3) + 1) / 2)
   return (indices, scores)
 #print(rank_reddit("fence built on my property"))
