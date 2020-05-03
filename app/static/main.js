@@ -76,6 +76,12 @@
                   $scope.queried_data = data;
                   $timeout.cancel(timeout);
                   $scope.finished = true;
+
+                  //ATTEMPT TO DO SCROLLINVIEW [NOT WORKING]
+                  // var element = document.getElementById("scrollId");
+                  // element.scrollIntoView(false);
+                  //========
+
                   return false;
                 }
                 // continue to call the poller() function every 2 seconds
