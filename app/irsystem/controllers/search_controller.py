@@ -119,7 +119,7 @@ def search():
             for case in caseresults:
                 case['score'] = round(case['score'], 3)
                 case['fulltext'] = case['case_summary']
-            caseresults = wrap_summary(caseresults)
+            # caseresults = wrap_summary(caseresults)
             for case in caseresults:
                 if not case['case_summary']:  # if case has no summary
                     case['case_summary'] = "No case summary found"
