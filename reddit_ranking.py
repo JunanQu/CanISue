@@ -10,4 +10,4 @@ def rank_reddit(query):
     indices.append(pair[0])
     scores.append(round(pair[1],3))
   return (indices, scores)
-print(rank_reddit("fence built on my property"))
+#print(rank_reddit("fence built on my property"))
