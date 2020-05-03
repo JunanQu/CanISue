@@ -23,10 +23,12 @@
 </head>
 
 <style>
-    .scd_col {}
-
     .form-group {
         width: 45vmax;
+    }
+
+    .scd_col {
+        width: 100%;
     }
 
     .global-search {
@@ -180,15 +182,18 @@
                     <option value="wyo">Wyoming</option>
                 </select>
             </div>
+
+
+            <!-- SPINNER START -->
+
+            <div class="scd_col">
+                <center>
+                    <img src="{{ url_for('static', filename='spinner_3.gif') }}" ng-show="loading">
+                </center>
+            </div>
+            <!-- SPINNER END -->
         </div>
 
-        <!-- SPINNER START -->
-        <center>
-            <img src="{{ url_for('static',
-    filename='spinner_3.gif') }}" ng-show="loading">
-        </center>
-        <!-- SPINNER END -->
-        </div>
 
         <br>
         <center>
