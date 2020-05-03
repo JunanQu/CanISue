@@ -26,7 +26,7 @@ def tokenize(text:str):
     return [stemmer.stem(word) for word in word_tokenize(text.translate(trans_table)) if len(word) > 1]
 
 
-def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
+def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = '', ncases=10):
     """
     Finds cases relevant to query from CAP API based on the similarity of the
     case summary to the query. Cases are then ranked by tfidf cosine similarity
@@ -105,7 +105,7 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
     documents = [TaggedDocument(doc, [i]) for i, doc in enumerate(case_texts)]
     model = Doc2Vec(documents, vector_size=5, window=2, min_count=1, workers=4)
     updated_query = model.infer_vector([query])
-    sims = model.docvecs.most_similar([updated_query], topn=10)
+    sims = model.docvecs.most_similar([updated_query], topn=ncases)
     print(sims)
     out_cases = []
     # for doc in sims:
@@ -117,7 +117,7 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
             'case_name':case_names[i[0]],
             'case_summary':case_summaries[i[0]],
             'case_url':case_urls[i[0]],
-            'score':i[1]
+            'score': (i[1] + 1) / 2
         })
         out_cases.append(case_dict)
     return (out_cases, debug_message)
@@ -167,5 +167,3 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
 
 if __name__ == "__main__":
     rank_cases("fence built on my property")
-    # with open('output.json', 'w') as f:
-    #     json.dump(rank_cases("fence built on my property"), f)
