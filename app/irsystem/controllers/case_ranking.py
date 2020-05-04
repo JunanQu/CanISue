@@ -1,3 +1,5 @@
+from gensim.models.doc2vec import Doc2Vec, TaggedDocument
+import utils
 import json
 import re
 import numpy as np
@@ -13,16 +15,13 @@ import requests
 
 import sys
 sys.path.insert(1, '../../..')
-import utils
-
-from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 
 
-def tokenize(text:str):
+def tokenize(text: str):
     """
     Tokenizer that removes stemmings from tokens. (currently unused)
     """
-    trans_table = {ord(c): None for c in string.punctuation + string.digits}    
+    trans_table = {ord(c): None for c in string.punctuation + string.digits}
     stemmer = PorterStemmer()
     return [stemmer.stem(word) for word in word_tokenize(text.translate(trans_table)) if len(word) > 1]
 
@@ -66,7 +65,7 @@ def get_court_jurisdictions():
     return {court['full_name']: jurisdictions[court['jurisdiction']] for court in courts}
 
 
-def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = '', ncases=10):
+def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate='', ncases=10):
     """
     Finds cases relevant to query from CAP API based on the similarity of the
     case summary to the query. Cases are then ranked by tfidf cosine similarity
@@ -91,7 +90,8 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = '', nc
     debug_message = ''
     try:
         # query data
-        url = "https://api.case.law/v1/cases/?search='{}'&full_case=TRUE".format(query)
+        url = "https://api.case.law/v1/cases/?search='{}'&full_case=TRUE".format(
+            query)
         if jurisdiction == 'all':
             jurisdiction = ''
         else:
@@ -120,8 +120,9 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = '', nc
             continue
 
     case_names = [case['name'] for case in cases]
-    case_texts = [case['casebody']['data']['head_matter'].replace("\n", " ") for case in cases]
-    
+    case_texts = [case['casebody']['data']
+                  ['head_matter'].replace("\n", " ") for case in cases]
+
     case_opinions = []
     for opinions in [case['casebody']['data']['opinions'] for case in cases]:
         op_num = 0
@@ -271,8 +272,9 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = '', nc
         important_lines = cases[idx]['preview']
     
         for line in important_lines:
-            line = line.replace("<em class='search_highlight'>", "").replace("</em>", "").replace(".", "")
-            for sent,_ in case_sents.items():
+            line = line.replace("<em class='search_highlight'>", "").replace(
+                "</em>", "").replace(".", "")
+            for sent, _ in case_sents.items():
                 if line in sent:
                     case_sents[sent] = True
                     break

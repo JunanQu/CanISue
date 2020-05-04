@@ -9,6 +9,16 @@ from . import *
 from app.irsystem.models.helpers import *
 from app.irsystem.models.helpers import NumpyEncoder as NumpyEncoder
 import os
+from flask import Flask, render_template, Response, jsonify
+import time
+
+# ASYNC and LOADING STUFF
+from rq import Queue
+from rq.job import Job
+from worker import conn
+
+q = Queue(connection=conn)
+# END
 print(os.getcwd())
 
 project_name = "Can I Sue?"
@@ -47,14 +57,20 @@ def go_to_about():
     return render_template('about.html')
 
 
-@irsystem.route('/', methods=['GET'])
-def search():
+global status
+status = 0
+
+
+def wrap_fun(query, minimum_date, jurisdiction):
+    global status
     global doc_by_vocab
     global doc_by_vocab_flag
     global tfidf_vec
 
+    print("!!!!")
+    print(query, minimum_date, jurisdiction)
     # Search Query
-    query = request.args.get('search')
+
     # Jurisdiction level ('Federal' or state abbreviation)
     jurisdiction = request.args.get('state')
     minimum_date = request.args.get('earliestdate')
@@ -67,24 +83,25 @@ def search():
         res = []
         output_message = ''
         print('no query')
-        return render_template('search.html', name=project_name, netid=net_id, output_message=output_message, data=res)
+        return project_name, net_id, output_message, res
+
     else:
         # =====Reddit cos processing START=========
         # title, id, selftext, url, created_utc e60m7
         num_posts = len(data)
         index_to_posts_id = {index: post_id for index,
-                                post_id in enumerate(data)}
+                             post_id in enumerate(data)}
 
-        if doc_by_vocab_flag==False:
+        if doc_by_vocab_flag == False:
             # d_array = [str(data[d]['selftext'])+str(data[d]['title']) for d in data]
             d_array = []
             for d in data:
                 s = str(data[d]['selftext'])+str(data[d]['title'])
                 d_array.append(s)
             doc_by_vocab = tfidf_vec.fit_transform(d_array).toarray()
-            doc_by_vocab_flag=True
+            doc_by_vocab_flag = True
 
-        post_vector =  tfidf_vec.transform([query]).toarray()[0]
+        post_vector = tfidf_vec.transform([query]).toarray()[0]
 
         sim_posts = []
         for post_index in range(num_posts):
@@ -94,10 +111,15 @@ def search():
             den = np.multiply(np.sqrt(q_vector.dot(q_vector)),
                               np.sqrt(post_vector.dot(post_vector)))
             score = num/den
+            if np.isnan(score):
+                score = 0
             sim_posts.append((score, post_index))
         print('calculated similarities')
         sim_posts.sort(key=lambda x: x[0], reverse=True)
         print('sorted similarities')
+
+        status = 50
+
         res = []
         for k in range(10):
             e = data[index_to_posts_id[sim_posts[k][1]]]
@@ -108,6 +130,9 @@ def search():
         print('retrieved reddit cases')
         # =====CaseLaw Retrieval=====
         print('begin caselaw retrieval')
+
+        status = 60
+
         caselaw, debug_msg = rank_cases(
             query, jurisdiction=jurisdiction, earlydate=minimum_date)
         error = False
@@ -125,6 +150,7 @@ def search():
             for case in caseresults:
                 if not case['case_summary']:  # if case has no summary
                     case['case_summary'] = "No case summary found"
+                    # case['case_summary'] = case['fulltext']
                     continue
                 case['case_summary'] = case['case_summary'][0:min(
                     1000, len(case['case_summary']))]
@@ -162,24 +188,79 @@ def search():
 
         # =====Processing results================
         print('completed caselaw retrieval')
+
+        status = 70
+
         for i in range(5):
             post = res[i]
             if (post['selftext'] is not None) and (len(post['selftext'])) > 500:
                 post['selftext'] = post['selftext'][0:500] + '...'
 
         caselaw_message = "Historical precedences:"
+
+        status = 80
+
         output_message = "Past discussions:"
         print('rendering template..')
+
+        status = 100
         # ============================
 
-        return render_template('search.html', name=project_name, netid=net_id,
-                               output_message=output_message, data=res[:5], casedata=caseresults,
-                               caselaw_message=caselaw_message,
-                               user_query=query, debug_message=debug_msg,
-                               judgment_rec=judgment_rec,
-                               is_error=error)
+        return project_name, net_id, output_message, res[:5], caseresults, caselaw_message, query, debug_msg, judgment_rec, error
+
+
+@irsystem.route('/', methods=['GET'])
+def search():
+    return render_template('search.html')
 
 
 @irsystem.route('/about', methods=['GET'])
 def about():
     return render_template('about.html')
+
+
+@irsystem.route("/results/<job_key>", methods=['GET'])
+def get_results(job_key):
+    job = Job.fetch(job_key, connection=conn)
+    if job.is_finished:
+        return jsonify(job.result), 200
+    else:
+        return "Nay!", 202
+
+
+@irsystem.route('/progress')
+def progress():
+    global status
+
+    def generate():
+        global status
+        while status <= 100:
+            yield "data:" + str(status) + "\n\n"
+            time.sleep(0.5)
+
+    return Response(generate(), mimetype='text/event-stream')
+
+
+@irsystem.route('/start', methods=['POST'])
+def get_counts():
+
+    data = json.loads(request.data.decode())
+    data = data['data']
+    print(data)
+    query = data[0]
+    min_date = data[1]
+    state = data[2]
+
+    if min_date is None:
+        min_date = ''
+    if (state is None) or (state == ""):
+        state = 'all'
+
+    print(query)
+    print(min_date)
+    print(state)
+    job = q.enqueue_call(
+        func=wrap_fun, args=(query, min_date,
+                             state), result_ttl=5000
+    )
+    return job.get_id()
