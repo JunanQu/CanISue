@@ -13,6 +13,9 @@ import time
 from flask import current_app
 from app import app
 import scipy.spatial.distance
+from django.utils.safestring import mark_safe
+from nltk.tokenize import word_tokenize, sent_tokenize
+import string 
 print(os.getcwd())
 
 project_name = "Can I Sue?"
@@ -105,7 +108,9 @@ def search():
             if np.isnan(score):
                 score = 0.0
             else:
+                print(score)
                 score = round(score, 3)
+                #print(score)
             sim_posts.append((score, i))
         
         print('calculated similarities')
@@ -147,6 +152,16 @@ def search():
                     1000, len(case['case_summary']))]
                 if len(case['case_summary']) == 1000:
                     case['case_summary'] = case['case_summary'] + '...'
+                
+                # Bold words in the displayed (abbreviated) case summary 
+                # that are also present in the user query to make summary look less rambling
+                case_summary_bolded = case['case_summary']
+                words_in_case = word_tokenize(case['case_summary'])
+                words_in_query = word_tokenize(query)
+                for word in set(words_in_query):
+                    if word not in string.punctuation and word in words_in_case:
+                        case_summary_bolded = case_summary_bolded.replace(word, '<strong>'+str(word)+'</strong>')
+                case['case_summary'] = case_summary_bolded
 
             # calculate judgment score
             judgment_score = 0
