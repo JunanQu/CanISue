@@ -9,6 +9,11 @@ from . import *
 from app.irsystem.models.helpers import *
 from app.irsystem.models.helpers import NumpyEncoder as NumpyEncoder
 import os
+from flask import Flask, render_template, Response, jsonify
+import time
+from flask import current_app
+from app import app
+import scipy.spatial.distance
 print(os.getcwd())
 
 project_name = "Can I Sue?"
