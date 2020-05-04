@@ -17,6 +17,8 @@ from rq import Queue
 from rq.job import Job
 from worker import conn
 from app import app
+import scipy.spatial.distance
+
 
 q = Queue(connection=conn)
 # END
@@ -47,7 +49,6 @@ status = 0
 
 
 def wrap_fun(query, minimum_date, jurisdiction, suing="yes"):
-    print("here")
     global status
     global doc_by_vocab
     #global doc_by_vocab_flag
@@ -77,18 +78,20 @@ def wrap_fun(query, minimum_date, jurisdiction, suing="yes"):
         #    doc_by_vocab_flag = True
 
         post_vector = tfidf_vec.transform([query]).toarray()[0]
-
+        start = time.time()
+        sims = scipy.spatial.distance.cdist(doc_by_vocab, [post_vector], 'cosine').reshape(-1)
+        end = time.time()
+        print('Reddit cosine Time elapsed: ', str(end - start))
+        # quit()
         sim_posts = []
-        for post_index in range(num_posts):
-            # score = get_sim(doc_by_vocab[post_index], doc_by_vocab[num_posts])
-            q_vector = doc_by_vocab[post_index]
-            num = q_vector.dot(post_vector)
-            den = np.multiply(np.sqrt(q_vector.dot(q_vector)),
-                              np.sqrt(post_vector.dot(post_vector)))
-            score = num/den
+        for i in range(len(sims)):
+            score = sims[i]
             if np.isnan(score):
-                score = 0
-            sim_posts.append((score, post_index))
+                score = 0.0
+            else:
+                score = round(score, 3)
+            sim_posts.append((score, 3), i))
+        
         print('calculated similarities')
         sim_posts.sort(key=lambda x: x[0], reverse=True)
         print('sorted similarities')
@@ -107,9 +110,11 @@ def wrap_fun(query, minimum_date, jurisdiction, suing="yes"):
         print('begin caselaw retrieval')
 
         status = 60
-
+        start = time.time()
         caselaw, debug_msg = rank_cases(
             query, jurisdiction=jurisdiction, earlydate=minimum_date)
+        end = time.time()
+        print('Case Law Time elapsed: ', str(end - start))
         error = False
         if not caselaw:
             judgment_rec = ""
@@ -228,10 +233,6 @@ def get_counts():
     if (state is None) or (state == ""):
         state = 'all'
 
-    print(query)
-    print(min_date)
-    print(state)
-    print("queuing")
     job = q.enqueue_call(
         func=wrap_fun, args=(query, min_date,
                              state, suing), result_ttl=5000
