@@ -259,11 +259,11 @@ def rank_cases(query: str, stem_tokens=False, jurisdiction='', earlydate='', nca
                         # threshold at 0.2 **for trial cases** to verify 'dismissed' is said near the end (last 20% of opinion)
                         case_outcomes.append("defendant")
                     else:
-                        case_outcomes.append("unknown")
+                        case_outcomes.append("unclear")
 
         # Part 3: For appeal cases, adjust original decision based on appeal outcome
 
-        if case_juris == "appeal" and case_outcomes[-1] != "unknown":
+        if case_juris == "appeal" and case_outcomes[-1] != "unclear":
             if appeal_outcomes[-1] == "negative":
                 case_outcomes[-1] = ("plaintiff" if case_outcomes[-1].lower()
                                      == "defendant" else "defendant")
