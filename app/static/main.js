@@ -25,7 +25,7 @@
           var min_date = $scope.min_date
           var state = $scope.state
           var suing = $scope.suing
-          if (suing == "") {
+          if (suing === "" || suing === null) {
             suing = "yes"
           }
           $log.log(suing)

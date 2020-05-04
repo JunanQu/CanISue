@@ -104,6 +104,7 @@ def wrap_fun(query, minimum_date, jurisdiction, suing="yes"):
             query, jurisdiction=jurisdiction, earlydate=minimum_date)
         error = False
         if not caselaw:
+            judgment_rec = ""
             # API call to CAP failed
             caseresults = [-1]
             error = True
@@ -150,6 +151,8 @@ def wrap_fun(query, minimum_date, jurisdiction, suing="yes"):
             elif judgment_score > score_limit/4 and judgment_score <= score_limit:
                 judgment_rec = "Verdict: Likely to win! ({}% confident)".format(
                     confidence)
+            else:
+                judgment_rec = ""
 
             for case in caseresults:
                 case['case_outcome'] = case['case_outcome'][0].capitalize() + \

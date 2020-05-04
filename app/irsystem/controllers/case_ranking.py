@@ -37,35 +37,36 @@ def get_court_jurisdictions():
     either "trial" or "appeal" <str>
     """
     # fetch response
-    response = requests.get("https://www.courtlistener.com/api/rest/v3/courts/?format=json").json()
+    response = requests.get(
+        "https://www.courtlistener.com/api/rest/v3/courts/?format=json").json()
     courts = response['results']
 
-    while response['next']: 
+    while response['next']:
         response = requests.get(response['next']).json()
         courts.extend(response['results'])
 
     # create mapping
     jurisdictions = {
-        "F"   : "appeal",
-        "FD"  : "trial",
-        "FB"  : "trial",
-        "FBP" : "appeal",
-        "FS"  : "appeal", # unsure
-        "S"   : "appeal",
-        "SA"  : "appeal",
-        "ST"  : "trial",
-        "SS"  : "trial",  # unsure
-        "SAG" : "trial",  # unsure
-        "C"   : "trial",  # unsure
-        "I"   : "trial",  # unsure
-        "T"   : "trial"   # unsure
+        "F": "appeal",
+        "FD": "trial",
+        "FB": "trial",
+        "FBP": "appeal",
+        "FS": "appeal",  # unsure
+        "S": "appeal",
+        "SA": "appeal",
+        "ST": "trial",
+        "SS": "trial",  # unsure
+        "SAG": "trial",  # unsure
+        "C": "trial",  # unsure
+        "I": "trial",  # unsure
+        "T": "trial"   # unsure
     }
     # vast majority of cases are not in 'unsure' categories so its no big deal
 
     return {court['full_name']: jurisdictions[court['jurisdiction']] for court in courts}
 
 
-def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate='', ncases=10):
+def rank_cases(query: str, stem_tokens=False, jurisdiction='', earlydate='', ncases=10):
     """
     Finds cases relevant to query from CAP API based on the similarity of the
     case summary to the query. Cases are then ranked by tfidf cosine similarity
@@ -100,9 +101,10 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate='', ncas
             url = url + '&decision_date_min=' + str(earlydate)
         response = utils.get_request_caselaw(url).json()
         cases = response['results']
-        
-        i = 1 # limit to 2 requests (200 cases) because that should be more than enough
-        while response['next'] and i < 2: 
+
+        # limit to 2 requests (200 cases) because that should be more than enough
+        i = 1
+        while response['next'] and i < 2:
             response = utils.get_request_caselaw(response['next']).json()
             cases.extend(response['results'])
             i += 1
@@ -160,19 +162,22 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate='', ncas
             court1_tokens = set(court1.split())
             for court2 in courts_included:
                 court2_tokens = set(court2.split())
-                score = float(len(court1_tokens & court2_tokens)) / len(court1_tokens | court2_tokens)
+                score = float(len(court1_tokens & court2_tokens)) / \
+                    len(court1_tokens | court2_tokens)
                 if score > max_score:
                     max_score = score
                     closest_court = court2
-    
-        case_jurisdictions.append(court_types[closest_court])    
+
+        case_jurisdictions.append(court_types[closest_court])
 
     ## ==== <STEP 3: determine opinion of cases> ==== ##
 
     case_outcomes = []
 
-    trial_regex = re.compile("(verdict|judgment)[ \w]* (plaintiff|defendant)", re.IGNORECASE)
-    appeal_regex = re.compile("(plaintiff|defendant)s* (in|brings) error", re.IGNORECASE)
+    trial_regex = re.compile(
+        "(verdict|judgment)[ \w]* (plaintiff|defendant)", re.IGNORECASE)
+    appeal_regex = re.compile(
+        "(plaintiff|defendant)s* (in|brings) error", re.IGNORECASE)
     positive_keywords = ['affirmed']
     negative_keywords = ['reversed', 'overruled', 'remanded']
     appeal_outcomes = [""]*len(cases)
@@ -198,14 +203,14 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate='', ncas
                     if any(word in opinion for word in positive_keywords):
                         if appeal_outcomes[case_index] == "negative":
                             # found both keywords, unable to classify
-                            case_juris = "trial" # evaluate as trial case
+                            case_juris = "trial"  # evaluate as trial case
                         else:
                             appeal_outcomes[case_index] = "positive"
                 else:
                     appeal_outcomes[case_index] = "positive"
             if appeal_outcomes[case_index] == "":
                 # found no keywords, unable to classify
-                case_juris = "trial" # evaluate as trial case
+                case_juris = "trial"  # evaluate as trial case
 
         # Part 2: find trial case outcome / original appeal case outcome
 
@@ -214,7 +219,8 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate='', ncas
         if result_text:
             match = result_text.group()
             if "against" in match:
-                case_outcomes.append("plaintiff" if match[-9:].lower() == "defendant" else "defendant")
+                case_outcomes.append(
+                    "plaintiff" if match[-9:].lower() == "defendant" else "defendant")
             else:
                 case_outcomes.append(match[-9:].lower())
         else:
@@ -222,23 +228,28 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate='', ncas
             if result_opinion:
                 match = result_opinion.group()
                 if "against" in match:
-                    case_outcomes.append("plaintiff" if match[-9:].lower() == "defendant" else "defendant")
+                    case_outcomes.append(
+                        "plaintiff" if match[-9:].lower() == "defendant" else "defendant")
                 else:
                     case_outcomes.append(match[-9:].lower())
             else:
                 # find cases with phrase "plaintiff/defendant in/brings error" **for appeal cases only**
                 if case_juris == "appeal":
-                    result_text = re.search(appeal_regex, case_texts[case_index])
+                    result_text = re.search(
+                        appeal_regex, case_texts[case_index])
                     if result_text:
                         match = result_text.group()
                         # caveat: making assumption that the appellant was the losing party
-                        case_outcomes.append("plaintiff" if match[:9].lower() == "defendant" else "defendant")
+                        case_outcomes.append(
+                            "plaintiff" if match[:9].lower() == "defendant" else "defendant")
                     else:
-                        result_opinion = re.search(appeal_regex, case_opinions[case_index])
+                        result_opinion = re.search(
+                            appeal_regex, case_opinions[case_index])
                         if result_opinion:
                             match = result_opinion.group()
                             # caveat: making assumption that the appellant was the losing party
-                            case_outcomes.append("plaintiff" if match[:9].lower() == "defendant" else "defendant")
+                            case_outcomes.append(
+                                "plaintiff" if match[:9].lower() == "defendant" else "defendant")
                         else:
                             appeal_regex_failed = True
                 if case_juris == "trial" or appeal_regex_failed:
@@ -249,16 +260,21 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate='', ncas
                         case_outcomes.append("defendant")
                     else:
                         case_outcomes.append("unknown")
-        
+
         # Part 3: For appeal cases, adjust original decision based on appeal outcome
 
         if case_juris == "appeal" and case_outcomes[-1] != "unknown":
             if appeal_outcomes[-1] == "negative":
-                case_outcomes[-1] = ("plaintiff" if case_outcomes[-1].lower() == "defendant" else "defendant")
+                case_outcomes[-1] = ("plaintiff" if case_outcomes[-1].lower()
+                                     == "defendant" else "defendant")
 
     ## ==== <STEP 4: rank cases by similarity to query> ==== ##
 
     documents = [TaggedDocument(doc, [i]) for i, doc in enumerate(case_texts)]
+    if(len(documents) == 0):
+        debug_message = "No cases found that meet the searching criteria!"
+
+        return (None, debug_message)
     model = Doc2Vec(documents, vector_size=5, window=2, min_count=1, workers=4)
     updated_query = model.infer_vector([query])
     sims = model.docvecs.most_similar([updated_query], topn=ncases)
@@ -266,11 +282,11 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate='', ncas
     ## ==== <STEP 5: summarize top cases> ==== ##
 
     case_summaries = [""]*len(cases)
-    for idx,_ in sims:
-        case_sents = {(k[:-1] if k[-1] == "." else k): False 
-                       for k in nltk.tokenize.sent_tokenize(case_texts[idx]) + nltk.tokenize.sent_tokenize(case_opinions[idx])}
+    for idx, _ in sims:
+        case_sents = {(k[:-1] if k[-1] == "." else k): False
+                      for k in nltk.tokenize.sent_tokenize(case_texts[idx]) + nltk.tokenize.sent_tokenize(case_opinions[idx])}
         important_lines = cases[idx]['preview']
-    
+
         for line in important_lines:
             line = line.replace("<em class='search_highlight'>", "").replace(
                 "</em>", "").replace(".", "")
@@ -279,7 +295,8 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate='', ncas
                     case_sents[sent] = True
                     break
 
-        case_summaries[idx] = ". ".join([sent for sent,valid in case_sents.items() if valid])
+        case_summaries[idx] = ". ".join(
+            [sent for sent, valid in case_sents.items() if valid])
 
     ## ==== <STEP 6: return> ==== ##
 
@@ -287,16 +304,16 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate='', ncas
     for i in sims:
         case_dict = dict()
         case_dict.update({
-            'case_name'    : case_names[i[0]],
-            'case_summary' : case_summaries[i[0]],
-            'case_url'     : case_urls[i[0]],
-            'case_outcome' : case_outcomes[i[0]],
-            'score'        : round((i[1] + 1) / 2, 3)
+            'case_name': case_names[i[0]],
+            'case_summary': case_summaries[i[0]],
+            'case_url': case_urls[i[0]],
+            'case_outcome': case_outcomes[i[0]],
+            'score': round((i[1] + 1) / 2, 3)
         })
         out_cases.append(case_dict)
-        
+
     return (out_cases, debug_message)
-        
+
 
 if __name__ == "__main__":
     rank_cases("fence built on my property")
