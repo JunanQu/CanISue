@@ -184,9 +184,9 @@
             </div>
             <div class="trd_col">
                 <label style="width:auto;">Suing or being sued?</label>
-                <select style="width: 6vw; margin-left:10px; margin-right: 9vmax;" class="" id="suing"
+                <select ng-model="suing" style="width: 6vw; margin-left:10px; margin-right: 9vmax;" class="" id="suing"
                     name="sue-status">
-                    <option value="yes">Suing</option>
+                    <option value="">Suing</option>
                     <option value="no">Being sued</option>
                 </select>
             </div>
@@ -224,9 +224,13 @@
 
     <!--Start -->
     <section class="feature-area" ng-show="finished">
-        <div style="width:45%; height:50px; display:inline-block; margin-left: 5%;">
-            <h2 style="white-space: pre">Verdict: {{judgment_rec}}</h2>
-        </div>
+        <center>
+            <div style="width:45%; height:50px; display:inline-block; margin-left: 5%;">
+                {% raw %}
+                <h2 style="white-space: pre">Verdict: {{judgment_rec}}</h2>
+                {% endraw %}
+            </div>
+        </center>
         <!-- CASELAW SECTION START-->
         <div ng-show="caselaw_show"
             style="float:left; margin-left:3%; overflow: auto; width:45%; height:800px; display:inline-block; border: 5px solid black ;">

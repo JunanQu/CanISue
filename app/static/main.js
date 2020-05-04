@@ -17,14 +17,20 @@
         $scope.debug_message = ''
         $scope.output_message = ''
         $scope.caselaw_message = ''
+        $scope.judgment_rec = ''
 
         $scope.getResults = function () {
           // get the input
           var userInput = $scope.url;
           var min_date = $scope.min_date
           var state = $scope.state
+          var suing = $scope.suing
+          if (suing == "") {
+            suing = "yes"
+          }
+          $log.log(suing)
           // fire the API request
-          $http.post('/start', { 'data': [userInput, min_date, state] }).
+          $http.post('/start', { 'data': [userInput, min_date, state, suing] }).
             success(function (results) {
               $log.log(results);
               collect_job(results);
@@ -62,15 +68,14 @@
                     $scope.caselaw_show = data[4][0]
                     $scope.caselaw_data = data[4]
                   }
-
                   $scope.output_message = data[2]
                   $scope.caselaw_message = data[5]
                   $scope.debug_message = data[7]
+                  $scope.judgment_rec = data[8]
                   if ($scope.caselaw_show == -1) {
                     $scope.caselaw_show = false
                     $scope.urlerror = true
                   }
-
                   $scope.loading = false;
                   $scope.submitButtonText = "Search";
                   $scope.queried_data = data;
