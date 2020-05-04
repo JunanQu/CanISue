@@ -1,3 +1,6 @@
+# Import for pass / encryption
+from werkzeug.security import check_password_hash, generate_password_hash
+
 # Import flask deps
 from flask import request, render_template, \
     flash, g, session, redirect, url_for, jsonify, abort
