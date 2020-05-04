@@ -90,7 +90,7 @@ def wrap_fun(query, minimum_date, jurisdiction, suing="yes"):
                 score = 0.0
             else:
                 score = round(score, 3)
-            sim_posts.append((score, 3), i))
+            sim_posts.append((score, i))
         
         print('calculated similarities')
         sim_posts.sort(key=lambda x: x[0], reverse=True)
