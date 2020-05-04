@@ -11,11 +11,12 @@ from app.irsystem.models.helpers import NumpyEncoder as NumpyEncoder
 import os
 from flask import Flask, render_template, Response, jsonify
 import time
-
+from flask import current_app
 # ASYNC and LOADING STUFF
 from rq import Queue
 from rq.job import Job
 from worker import conn
+from app import app
 
 q = Queue(connection=conn)
 # END
@@ -24,16 +25,23 @@ print(os.getcwd())
 project_name = "Can I Sue?"
 net_id = "Junan Qu (jq77), Zachary Shine (zs92), Ian Paul (ijp9), Max Chen (mlc294), Nikhil Saggi (ns739)"
 
-r = requests.get(
-    "https://storage.googleapis.com/can_i_sue_reddit/reddit_data.json")
-data = r.json()
-doc_by_vocab = []
-doc_by_vocab_flag = False
-tfidf_vec = TfidfVectorizer(min_df=.01,
-                            max_df=0.8,
-                            max_features=5000,
-                            stop_words='english',
-                            norm='l2')
+#r = requests.get(
+#    "https://storage.googleapis.com/can_i_sue_reddit/reddit_data.json")
+#data = r.json()
+data=None
+tfidf_vec=None
+doc_by_vocab=None
+with app.app_context():
+    data = current_app.data
+    tfidf_vec = current_app.tfidf_vectorizer
+    doc_by_vocab = current_app.tfidf_matrix
+#doc_by_vocab = []
+#doc_by_vocab_flag = False
+#tfidf_vec = TfidfVectorizer(min_df=.01,
+#                            max_df=0.8,
+#                            max_features=5000,
+#                            stop_words='english',
+#                            norm='l2')
 print("loaded reddit info ")
 status = 0
 
@@ -42,7 +50,7 @@ def wrap_fun(query, minimum_date, jurisdiction, suing="yes"):
     print("here")
     global status
     global doc_by_vocab
-    global doc_by_vocab_flag
+    #global doc_by_vocab_flag
     global tfidf_vec
 
     output_message = ''
@@ -59,14 +67,14 @@ def wrap_fun(query, minimum_date, jurisdiction, suing="yes"):
         index_to_posts_id = {index: post_id for index,
                              post_id in enumerate(data)}
 
-        if doc_by_vocab_flag == False:
+        #if doc_by_vocab_flag == False:
             # d_array = [str(data[d]['selftext'])+str(data[d]['title']) for d in data]
-            d_array = []
-            for d in data:
-                s = str(data[d]['selftext'])+str(data[d]['title'])
-                d_array.append(s)
-            doc_by_vocab = tfidf_vec.fit_transform(d_array).toarray()
-            doc_by_vocab_flag = True
+        #    d_array = []
+        #    for d in data:
+        #        s = str(data[d]['selftext'])+str(data[d]['title'])
+        #        d_array.append(s)
+        #    doc_by_vocab = tfidf_vec.fit_transform(d_array).toarray()
+        #    doc_by_vocab_flag = True
 
         post_vector = tfidf_vec.transform([query]).toarray()[0]
 
