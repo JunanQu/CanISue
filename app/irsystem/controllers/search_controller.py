@@ -9,11 +9,6 @@ from . import *
 from app.irsystem.models.helpers import *
 from app.irsystem.models.helpers import NumpyEncoder as NumpyEncoder
 import os
-from flask import Flask, render_template, Response, jsonify
-import time
-from flask import current_app
-from app import app
-import scipy.spatial.distance
 print(os.getcwd())
 
 project_name = "Can I Sue?"
@@ -54,19 +49,16 @@ def go_to_about():
 
 @irsystem.route('/', methods=['GET'])
 def search():
-    #global doc_by_vocab
-    #global doc_by_vocab_flag
-    #global tfidf_vec
-    with app.app_context():
-        data = current_app.data
-        tfidf_vec = current_app.tfidf_vectorizer
-        doc_by_vocab = current_app.tfidf_matrix
+    global doc_by_vocab
+    global doc_by_vocab_flag
+    global tfidf_vec
 
     # Search Query
     query = request.args.get('search')
     # Jurisdiction level ('Federal' or state abbreviation)
     jurisdiction = request.args.get('state')
     minimum_date = request.args.get('earliestdate')
+    suing = request.args.get('sue-status')
     print(query)
     print(jurisdiction)
     print(minimum_date)
@@ -77,36 +69,32 @@ def search():
         print('no query')
         return render_template('search.html', name=project_name, netid=net_id, output_message=output_message, data=res)
     else:
-         # =====Reddit cos processing START=========
+        # =====Reddit cos processing START=========
         # title, id, selftext, url, created_utc e60m7
         num_posts = len(data)
         index_to_posts_id = {index: post_id for index,
-                             post_id in enumerate(data)}
+                                post_id in enumerate(data)}
 
-        # if doc_by_vocab_flag == False:
-        #     d_array = [str(data[d]['selftext'])+str(data[d]['title']) for d in data]
-        #     d_array = []
-        #     for d in data:
-        #         s = str(data[d]['selftext'])+str(data[d]['title'])
-        #         d_array.append(s)
-        #     doc_by_vocab = tfidf_vec.fit_transform(d_array).toarray()
-        #     doc_by_vocab_flag = True
+        if doc_by_vocab_flag==False:
+            # d_array = [str(data[d]['selftext'])+str(data[d]['title']) for d in data]
+            d_array = []
+            for d in data:
+                s = str(data[d]['selftext'])+str(data[d]['title'])
+                d_array.append(s)
+            doc_by_vocab = tfidf_vec.fit_transform(d_array).toarray()
+            doc_by_vocab_flag=True
 
-        post_vector = tfidf_vec.transform([query]).toarray()[0]
-        start = time.time()
-        sims = scipy.spatial.distance.cdist(doc_by_vocab, [post_vector], 'cosine').reshape(-1)
-        end = time.time()
-        print('Reddit cosine Time elapsed: ', str(end - start))
-        # quit()
+        post_vector =  tfidf_vec.transform([query]).toarray()[0]
+
         sim_posts = []
-        for i in range(len(sims)):
-            score = sims[i]
-            if np.isnan(score):
-                score = 0.0
-            else:
-                score = round(score, 3)
-            sim_posts.append((score, i))
-        
+        for post_index in range(num_posts):
+            # score = get_sim(doc_by_vocab[post_index], doc_by_vocab[num_posts])
+            q_vector = doc_by_vocab[post_index]
+            num = q_vector.dot(post_vector)
+            den = np.multiply(np.sqrt(q_vector.dot(q_vector)),
+                              np.sqrt(post_vector.dot(post_vector)))
+            score = num/den
+            sim_posts.append((score, post_index))
         print('calculated similarities')
         sim_posts.sort(key=lambda x: x[0], reverse=True)
         print('sorted similarities')
@@ -119,14 +107,11 @@ def search():
         # =====Reddit cos processing END=========
         print('retrieved reddit cases')
         # =====CaseLaw Retrieval=====
-        start = time.time()
+        print('begin caselaw retrieval')
         caselaw, debug_msg = rank_cases(
             query, jurisdiction=jurisdiction, earlydate=minimum_date)
-        end = time.time()
-        print('Case Law Time elapsed: ', str(end - start))
         error = False
         if not caselaw:
-            judgment_rec = ""
             # API call to CAP failed
             caseresults = [-1]
             error = True
@@ -140,7 +125,6 @@ def search():
             for case in caseresults:
                 if not case['case_summary']:  # if case has no summary
                     case['case_summary'] = "No case summary found"
-                    # case['case_summary'] = case['fulltext']
                     continue
                 case['case_summary'] = case['case_summary'][0:min(
                     1000, len(case['case_summary']))]
@@ -165,50 +149,37 @@ def search():
                 judgment_score *= -1
 
             if judgment_score >= -score_limit and judgment_score < -score_limit/4:
-                judgment_rec = "Verdict: Likely to lose! ({}% confident)".format(
-                    confidence)
+                judgment_rec = "Likely to lose! ({}% confident)".format(confidence)
             elif judgment_score >= -score_limit/4 and judgment_score <= score_limit/4:
-                judgment_rec = "Verdict: Could go either way ({}% confident)".format(
-                    confidence)
+                judgment_rec = "Could go either way ({}% confident)".format(confidence)
             elif judgment_score > score_limit/4 and judgment_score <= score_limit:
-                judgment_rec = "Verdict: Likely to win! ({}% confident)".format(
-                    confidence)
-            else:
-                judgment_rec = ""
-
+                judgment_rec = "Likely to win! ({}% confident)".format(confidence)
+            
             for case in caseresults:
-                case['case_outcome'] = case['case_outcome'][0].capitalize() + \
-                    case['case_outcome'][1:]
+                case['case_outcome'] = case['case_outcome'][0].capitalize() + case['case_outcome'][1:]
+            
+            
 
         # =====Processing results================
         print('completed caselaw retrieval')
-
-        status = 70
-
         for i in range(5):
             post = res[i]
             if (post['selftext'] is not None) and (len(post['selftext'])) > 500:
                 post['selftext'] = post['selftext'][0:500] + '...'
 
         caselaw_message = "Historical precedences:"
-
-        status = 80
-
         output_message = "Past discussions:"
         print('rendering template..')
-
-        status = 100
+        # ============================
 
         return render_template('search.html', name=project_name, netid=net_id,
                                output_message=output_message, data=res[:5], casedata=caseresults,
                                caselaw_message=caselaw_message,
                                user_query=query, debug_message=debug_msg,
+                               judgment_rec=judgment_rec,
                                is_error=error)
 
 
 @irsystem.route('/about', methods=['GET'])
 def about():
     return render_template('about.html')
-
-
-#project_name, net_id, output_message, res[:5], caseresults, caselaw_message, query, debug_msg, judgment_rec, error    
