@@ -88,12 +88,12 @@ def wrap_fun(query, minimum_date, jurisdiction, suing="yes"):
 
         if doc_by_vocab_flag == False:
             d_array = [str(data[d]['selftext'])+str(data[d]['title']) for d in data]
-           d_array = []
-           for d in data:
-               s = str(data[d]['selftext'])+str(data[d]['title'])
-               d_array.append(s)
-           doc_by_vocab = tfidf_vec.fit_transform(d_array).toarray()
-           doc_by_vocab_flag = True
+            d_array = []
+            for d in data:
+                s = str(data[d]['selftext'])+str(data[d]['title'])
+                d_array.append(s)
+            doc_by_vocab = tfidf_vec.fit_transform(d_array).toarray()
+            doc_by_vocab_flag = True
 
         post_vector = tfidf_vec.transform([query]).toarray()[0]
         start = time.time()
