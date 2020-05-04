@@ -9,7 +9,7 @@ from flask import request, render_template, \
 from functools import wraps
 
 # Import for pass / encryption
-from werkzeug import check_password_hash, generate_password_hash
+#from werkzeug import check_password_hash, generate_password_hash
 
 # Import the db object from main app module
 from app import db
