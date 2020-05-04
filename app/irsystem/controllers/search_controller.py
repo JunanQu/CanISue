@@ -14,7 +14,7 @@ from flask import current_app
 from app import app
 import scipy.spatial.distance
 from django.utils.safestring import mark_safe
-from nltk.tokenize import word_tokeenize, sent_tokenize
+from nltk.tokenize import word_tokenize, sent_tokenize
 import string
 print(os.getcwd())
 
