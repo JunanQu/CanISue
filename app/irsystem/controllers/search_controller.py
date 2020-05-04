@@ -14,17 +14,17 @@ print(os.getcwd())
 project_name = "Can I Sue?"
 net_id = "Junan Qu (jq77), Zachary Shine (zs92), Ian Paul (ijp9), Max Chen (mlc294), Nikhil Saggi (ns739)"
 
-r = requests.get(
-    "https://storage.googleapis.com/can_i_sue_reddit/reddit_data.json")
-data = r.json()
-doc_by_vocab = []
-doc_by_vocab_flag = False
-tfidf_vec = TfidfVectorizer(min_df=.01,
-                            max_df=0.8,
-                            max_features=5000,
-                            stop_words='english',
-                            norm='l2')
-print("loaded reddit info ")
+# r = requests.get(
+#     "https://storage.googleapis.com/can_i_sue_reddit/reddit_data.json")
+# data = r.json()
+# doc_by_vocab = []
+# doc_by_vocab_flag = False
+# tfidf_vec = TfidfVectorizer(min_df=.01,
+#                             max_df=0.8,
+#                             max_features=5000,
+#                             stop_words='english',
+#                             norm='l2')
+# print("loaded reddit info ")
 
 
 # =====REDDIT COSINE======
@@ -32,11 +32,11 @@ print("loaded reddit info ")
 # title, id, selftext, url, created_utc e60m7
 
 
-def get_sim(q_vector, post_vector):
-    num = q_vector.dot(post_vector)
-    den = np.multiply(np.sqrt(q_vector.dot(q_vector)),
-                      np.sqrt(post_vector.dot(post_vector)))
-    return num/den
+# def get_sim(q_vector, post_vector):
+#     num = q_vector.dot(post_vector)
+#     den = np.multiply(np.sqrt(q_vector.dot(q_vector)),
+#                       np.sqrt(post_vector.dot(post_vector)))
+#     return num/den
 
 
 # =====END=======
@@ -49,9 +49,13 @@ def go_to_about():
 
 @irsystem.route('/', methods=['GET'])
 def search():
-    global doc_by_vocab
-    global doc_by_vocab_flag
-    global tfidf_vec
+    # global doc_by_vocab
+    # global doc_by_vocab_flag
+    # global tfidf_vec
+    with app.app_context():
+        data = current_app.data
+        tfidf_vec = current_app.tfidf_vectorizer
+        doc_by_vocab = current_app.tfidf_matrix
 
     # Search Query
     query = request.args.get('search')
@@ -62,6 +66,7 @@ def search():
     print(query)
     print(jurisdiction)
     print(minimum_date)
+    print(suing)
     output_message = ''
     if not query:
         res = []
@@ -75,29 +80,36 @@ def search():
         index_to_posts_id = {index: post_id for index,
                                 post_id in enumerate(data)}
 
-        if doc_by_vocab_flag==False:
-            # d_array = [str(data[d]['selftext'])+str(data[d]['title']) for d in data]
-            d_array = []
-            for d in data:
-                s = str(data[d]['selftext'])+str(data[d]['title'])
-                d_array.append(s)
-            doc_by_vocab = tfidf_vec.fit_transform(d_array).toarray()
-            doc_by_vocab_flag=True
+        # if doc_by_vocab_flag==False:
+        #     # d_array = [str(data[d]['selftext'])+str(data[d]['title']) for d in data]
+        #     d_array = []
+        #     for d in data:
+        #         s = str(data[d]['selftext'])+str(data[d]['title'])
+        #         d_array.append(s)
+        #     doc_by_vocab = tfidf_vec.fit_transform(d_array).toarray()
+        #     doc_by_vocab_flag=True
 
-        post_vector =  tfidf_vec.transform([query]).toarray()[0]
-
+        post_vector = tfidf_vec.transform([query]).toarray()[0]
+        start = time.time()
+        sims = scipy.spatial.distance.cdist(doc_by_vocab, [post_vector], 'cosine').reshape(-1)
+        end = time.time()
+        print('Reddit cosine Time elapsed: ', str(end - start))
+        # quit()
         sim_posts = []
-        for post_index in range(num_posts):
-            # score = get_sim(doc_by_vocab[post_index], doc_by_vocab[num_posts])
-            q_vector = doc_by_vocab[post_index]
-            num = q_vector.dot(post_vector)
-            den = np.multiply(np.sqrt(q_vector.dot(q_vector)),
-                              np.sqrt(post_vector.dot(post_vector)))
-            score = num/den
-            sim_posts.append((score, post_index))
+        for i in range(len(sims)):
+            score = sims[i]
+            if np.isnan(score):
+                score = 0.0
+            else:
+                score = round(score, 3)
+            sim_posts.append((score, i))
+        
         print('calculated similarities')
         sim_posts.sort(key=lambda x: x[0], reverse=True)
         print('sorted similarities')
+
+        status = 50
+
         res = []
         for k in range(10):
             e = data[index_to_posts_id[sim_posts[k][1]]]
