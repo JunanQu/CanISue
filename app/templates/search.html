@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="zxx" class="no-js" ng-app="canisueApp">
+<html lang="zxx" class="no-js">
 
 <head>
     <link href="https://fonts.googleapis.com/css?family=Montserrat:300,500,600" rel="stylesheet">
@@ -14,19 +13,10 @@
     <link rel="stylesheet" href="/static/animate.min.css">
     <link rel="stylesheet" href="/static/owl.carousel.css">
 
-    <!-- Angular script -->
-    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular.min.js"></script>
-
-    <!-- JS script -->
-    <script src="{{ url_for('static', filename='main.js') }}"></script>
-
 </head>
 
-<style>
-    .form-group {
-        width: 45vmax;
-    }
 
+<style>
     .scd_col {
         width: 100%;
     }
@@ -80,7 +70,7 @@
     }
 </style>
 
-<body ng-controller="appController">
+<body>
     <a href='/about.html'>
         <button class="about_btn" style="
         position: absolute;
@@ -91,44 +81,35 @@
             </span>
         </button>
     </a>
-
-    <form class="form-inline global-search" role="form" ng-submit="getResults()">
+    <form class="form-inline global-search">
         <h1
             style="font-size: 55px; font-family:Futura; margin-left: 35%; margin-right: 35%; margin-bottom: 20px; color: #4285F4">
             <a href="/">Can I Sue?</a>
         </h1>
 
-        <div class="form-group" style="">
 
+        <div class="form-group" style="">
             {% if user_query %}
             <!-- If this is a search result, auto fill in the user's query -->
 
-            <input id="input" style="width: 23vmax;" ng-model="url" type="text" name="search" class="form-control"
+
+            <input id="input" style="width: 23vmax;" type="text" name="search" class="form-control"
                 placeholder="{{user_query}}">
             {%else %}
-            <input id=" input" style="width: 23vmax;" ng-model="url" type="text" name="search" class="form-control"
+            <input id=" input" style="width: 23vmax;" type="text" name="search" class="form-control"
                 placeholder="Search Cases">
             {% endif %}
-
-            {% raw %}
-            <button ng-disabled="loading" type="submit" class="about_btn"> {{submitButtonText}} </button>
-            {% endraw %}
-
+            <button type="submit" class="about_btn"> Search </button>
+            <!-- <input type="date" id="test" name="test" placeholder="Earliest Case Date"> -->
             <div class="scd_col">
                 <label style="width:auto;">Earliest Case Date:</label>
-                <input ng-model="min_date" style="text-align: center; width: auto; margin-right: 0;"
-                    placeholder="Any Date Range" class="textbox-n scd_col" type="text" onfocus="(this.type='date')"
-                    onblur="(this.type='text')" id="earliestdate" name="earliestdate">
-
-
-            </div>
-
-            <div class="scd_col">
+                <input style="text-align: center; margin-right: 0;" placeholder="Any Date Range"
+                    class="textbox-n scd_col" type="text" onfocus="(this.type='date')" onblur="(this.type='text')"
+                    id="earliestdate" name="earliestdate">
                 <!-- Dropdown Menu for States -->
-                <label style="width:auto;">Jurisdiction Area:</label>
-                <select ng-init="state || 'all'" style="width: auto; margin-left:10px; margin-right: 0;" class=""
-                    id="jurisdisction" name="state" ng-model="state">
-                    <option value="" selected>All Jurisdictions</option>
+                <select style="width: auto; margin-left:10px; margin-right: 0;" class="" id="jurisdisction"
+                    name="state">
+                    <option value="all">All Jurisdictions</option>
                     <option value="us">Federal</option>
                     <option value="ala">Alabama</option>
                     <option value="alaska">Alaska</option>
@@ -183,137 +164,127 @@
                     <option value="wyo">Wyoming</option>
                 </select>
             </div>
-            <div class="scd_col">
+            <div class=".scd_col">
                 <label style="width:auto;">Suing or being sued?</label>
-                <select ng-model="suing" name="sue-status">
-                    <option value="">Suing</option>
+                <select style="width: auto; margin-left:10px; margin-right: 0;" class="" id="suing" name="sue-status">
+                    <option value="yes">Suing</option>
                     <option value="no">Being sued</option>
                 </select>
             </div>
-
-            <!-- SPINNER START -->
-
-            <div class="scd_col">
-                <center>
-                    <img src="{{ url_for('static', filename='spinner_3.gif') }}" ng-show="loading">
-                </center>
-            </div>
-            <!-- SPINNER END -->
         </div>
 
-
         <br>
+        {% if not user_query %}
         <center>
-            <div class="alert-disclaimer" ng-show="disclaimer_show">
+            <div class="alert-disclaimer">
                 <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
                 Disclaimer: The <i>Can I Sue?</i> team is not responsible for any legal decisions made by its users.
             </div>
         </center>
+        {% endif %}
     </form>
 
-    <!-- ERROR MESSAGE START -->
-    <center>
-        {% raw %}
-        <div class="alert-error" ng-show="urlerror">
-            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-            {{debug_message}}
-        </div>
-        {% endraw %}
-    </center>
-    <!-- ERROR MESSAGE END -->
-
+    {% if debug_message == '' %}
     <!--Start -->
-    <section class="feature-area" ng-show="finished">
-        <center>
-            <div style="width:45%; height:50px; display:inline-block; margin-left: 5%;">
-                {% raw %}
-                <h2 style="white-space: pre">{{judgment_rec}}</h2>
-                {% endraw %}
-            </div>
-        </center>
-        <!-- CASELAW SECTION START-->
-        <div ng-show="caselaw_show"
-            style="float:left; margin-left:3%; overflow: auto; width:45%; height:800px; display:inline-block; border: 5px solid black ;">
+    <section class="feature-area">
+        {% if casedata %}
+        {% if casedata[0] == -1 %}
+        <p>
+            Case results API is currently down
+        </p>
+        {% else %}
+        <div style="width:45%; height:50px; display:inline-block; margin-left: 5%;">
+            <h2 style="white-space: pre">Verdict: {{judgment_rec}}</h2>
+        </div>
+        <div
+            style="overflow: auto; width:45%; height:800px; display:inline-block; margin-left: 5%; border: 5px solid black ;">
             <div class=" container" style="text-align: center; width:95%">
-                {% raw %}
-                <h1 style="white-space: pre;">{{caselaw_message}}</h1>
-                {% endraw %}
+                <h1 style="white-space: pre">{{caselaw_message}}</h1>
                 <div class="feature-inner row">
-                    {% raw %}
-                    <div ng-repeat="element in caselaw_data" class="feature-item"
-                        style="border-color:black;border-style: solid; margin-bottom: 10px;">
+                    {% for d in range(casedata|length) %}
+                    <div class="feature-item" style="border-color:black;border-style: solid; margin-bottom: 10px;">
                         <i class="ti-crown" style="padding-top: 5px;"></i>
                         <h5>
-                            {{element['case_name']}}
+                            {{casedata[d].case_name}}
                         </h5>
                         <br>
                         <div class="wow fadeIn" data-wow-duration="1s" data-wow-delay=".1s">
                             <p>
-                                {{element['case_summary']}}
+                                {{casedata[d].case_summary}}
                             </p>
+
                             <p>
                                 <span style="font-weight: bold;
                                 font-size: large;
                                 font-style: normal;
-                                color: rgba(9, 9, 9, 0.845)"> {{element['score'] * 100.}}% Match </span>
+                                color: rgba(9, 9, 9, 0.845)"> Similarity score: {{casedata[d].score*100}}% </span>
                             </p>
+
                             <p>
                                 <span style="font-weight: bold;
                                 font-size: large;
                                 font-style: normal;
-                                color: rgba(9, 9, 9, 0.845)"> Winner: {{element['case_outcome']}} </span>
+                                color: rgba(9, 9, 9, 0.845)"> Winner: {{casedata[d].case_outcome}} </span>
                             </p>
+
                             <p>
-                                <a href="{{element['case_url']}}" target="_blank">Read full case</a>
+                                <a href="{{casedata[d].case_url}}" target="_blank">Read full case</a>
                             </p>
                         </div>
                     </div>
-                    {% endraw %}
+                    {% endfor %}
                 </div>
             </div>
         </div>
-        <!-- CASELAW SECTION END-->
-
-
-        <!-- REDDIT SECTION START-->
-        <div
-            style="float:right; margin-right:3%; overflow: auto; width:45%; height:800px; display:inline-block; border: 5px solid black ;">
+        {% endif %}
+        {% endif %}
+        {% if data %}
+        <div style="overflow: auto; width:45%; height:800px; display:inline-block; border: 5px solid black ;">
             <div class="container" style="text-align: center; width:95%">
-                {% raw %}
                 <h1 style="white-space: pre;">{{output_message}}</h1>
-                {% endraw %}
                 <div class="feature-inner row">
-                    {% raw %}
-                    <div ng-repeat='element in reddit_data' class="feature-item"
-                        style="border-color:black;border-style: solid; margin-bottom: 10px;">
+                    {% for d in range(data|length) %}
+                    <div class="feature-item" style="border-color:black;border-style: solid; margin-bottom: 10px;">
                         <i class="ti-crown" style="padding-top: 5px;"></i>
-                        <h4>{{element['title']}}</h4>
+                        <h4>{{data[d].title}}</h4>
                         <div class="wow fadeIn" data-wow-duration="1s" data-wow-delay=".1s">
                             <p>
-                                {{element['selftext']}}
+                                {{data[d].selftext}}
                             </p>
+
                             <p>
                                 <span style="font-weight: bold;
                                 font-size: large;
                                 font-style: normal;
-                                color: rgba(9, 9, 9, 0.845)"> {{element['score'] * 100.}}% Match </span>
+                                color: rgba(9, 9, 9, 0.845)"> Score: {{data[d].score}} </span>
                             </p>
+
                             <p>
-                                <a href="{{element['url']}}" target="_blank">Follow this discussion</a>
+                                <a href="{{data[d].url}}" target="_blank">Follow this discussion</a>
                             </p>
                         </div>
                     </div>
-                    {% endraw %}
+                    {% endfor %}
                 </div>
             </div>
         </div>
+        {% endif %}
     </section>
-    <!-- REDDIT SECTION END -->
-
-
-
-
+    {% elif is_error==true %}
+    <center>
+        <div class="alert-error">
+            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+            {{debug_message}}
+        </div>
+    </center>
+    {% endif %}
+    <!-- End-->
+    <!-- {% if (not casedata) and (not data) %}
+    <div class="topcorner">
+        <p>Project Name: {{ name }}</p>
+        <p>Student Names: {{ netid }}</p>
+    </div>
+    {% endif %} -->
 </body>
 
 </html>
-<script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>

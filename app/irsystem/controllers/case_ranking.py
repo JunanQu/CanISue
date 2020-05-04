@@ -104,7 +104,7 @@ def rank_cases(query: str, stem_tokens=False, jurisdiction='', earlydate='', nca
 
         # limit to 2 requests (200 cases) because that should be more than enough
         i = 1
-        while response['next'] and i < 2:
+        while response['next'] and i < 3:
             response = utils.get_request_caselaw(response['next']).json()
             cases.extend(response['results'])
             i += 1
@@ -275,7 +275,7 @@ def rank_cases(query: str, stem_tokens=False, jurisdiction='', earlydate='', nca
         debug_message = "No cases found that meet the searching criteria!"
 
         return (None, debug_message)
-    model = Doc2Vec(documents, vector_size=5, window=2, min_count=1, workers=4)
+    model = Doc2Vec(documents, vector_size=4, window=2, min_count=1, workers=4)
     updated_query = model.infer_vector([query])
     sims = model.docvecs.most_similar([updated_query], topn=ncases)
 
