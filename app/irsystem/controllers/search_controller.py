@@ -115,6 +115,7 @@ def search():
             # API call to CAP failed
             caseresults = [-1]
             error = True
+            judgment_rec="Case Law Error Encountered."
         else:
             caseresults = caselaw[0:5]
             # Score to keep to 3 decimals
