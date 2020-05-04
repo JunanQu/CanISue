@@ -15,84 +15,160 @@
 
 </head>
 
+
+<style>
+    .scd_col {
+        width: auto;
+        padding-left: 12px;
+        width: 50vmax;
+    }
+
+    .global-search {
+        text-align: center;
+        padding: 10px;
+        width: 70vmax;
+    }
+
+    .about_btn {
+        -moz-box-shadow: inset 0px 0px 16px 0px #337ab7;
+        -webkit-box-shadow: inset 0px 0px 16px 0px #337ab7;
+        box-shadow: inset 0px 0px 16px 0px #337ab7;
+        background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #337ab7), color-stop(1, #337ab7));
+        background: -moz-linear-gradient(top, #337ab7 5%, #337ab7 100%);
+        background: -webkit-linear-gradient(top, #337ab7 5%, #337ab7 100%);
+        background: -o-linear-gradient(top, #337ab7 5%, #337ab7 100%);
+        background: -ms-linear-gradient(top, #337ab7 5%, #337ab7 100%);
+        background: linear-gradient(to bottom, #337ab7 5%, #337ab7 100%);
+        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#bddbfa', endColorstr='#80b5ea', GradientType=0);
+        background-color: #337ab7;
+        -webkit-border-radius: 12px;
+        -moz-border-radius: 12px;
+        border-radius: 12px;
+        border: 1px solid #337ab7;
+        display: inline-block;
+        cursor: pointer;
+        color: #ffffff;
+        font-family: Arial;
+        font-size: 16px;
+        font-weight: bold;
+        padding: 8px 24px;
+        text-decoration: none;
+        text-shadow: 0px 2px 0px #528ecc;
+    }
+
+    .about_btn:hover {
+        background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #337ab7), color-stop(1, #6da3d2));
+        background: -moz-linear-gradient(top, #337ab7 5%, #6da3d2 100%);
+        background: -webkit-linear-gradient(top, #337ab7 5%, #6da3d2 100%);
+        background: -o-linear-gradient(top, #337ab7 5%, #6da3d2 100%);
+        background: -ms-linear-gradient(top, #337ab7 5%, #6da3d2 100%);
+        background: linear-gradient(to bottom, #337ab7 5%, #6da3d2 100%);
+        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#80b5ea', endColorstr='#bddbfa', GradientType=0);
+        background-color: #337ab7;
+    }
+
+    .about_btn:active {
+        position: relative;
+        top: 1px;
+    }
+</style>
+
 <body>
+    <a href='/about.html'>
+        <button class="about_btn" style="
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        ">
+            <span style="font-weight:bolder; font-style: normal; font-size: larger;">Meet the Team
+            </span>
+        </button>
+    </a>
     <form class="form-inline global-search">
-        <h1 style="font-size: 55px; font-family:Futura; color: #4285F4">
-            <a href="/">Can I Sue?</a>
+        <h1
+            style="font-size: 55px; font-family:Futura; margin-left: 35%; margin-right: 35%; margin-bottom: 20px; color: #4285F4">
+            <a href="/" style="width: 45vmax;">Can I Sue?</a>
         </h1>
 
-        <br><br>
 
-        <div class="form-group">
+        <div class="form-group" style="margin-left: 22vmax; margin-right: 30vmax;">
             {% if user_query %}
             <!-- If this is a search result, auto fill in the user's query -->
-            <input id="input" type="text" name="search" class="form-control" placeholder="{{user_query}}">
+
+
+            <input id="input" style="width: 23vmax;" type="text" name="search" class="form-control"
+                placeholder="{{user_query}}">
             {%else %}
-            <input id=" input" type="text" name="search" class="form-control" placeholder="Search Cases">
+            <input id=" input" style="width: 23vmax;" type="text" name="search" class="form-control"
+                placeholder="Search Cases">
             {% endif %}
-            <br>
+            <button type="submit" class="about_btn"> Search </button>
             <!-- <input type="date" id="test" name="test" placeholder="Earliest Case Date"> -->
-            <strong>Earliest Case Date:</strong>
-            <input placeholder="Any Date Range" class="textbox-n" type="text" onfocus="(this.type='date')"
-                onblur="(this.type='text')" id="earliestdate" name="earliestdate">
-            <!-- Dropdown Menu for States -->
-            <select id="jurisdisction" name="state">
-                <option value="all">All Jurisdictions</option>
-                <option value="us">Federal</option>
-                <option value="ala">Alabama</option>
-                <option value="alaska">Alaska</option>
-                <option value="ariz">Arizona</option>
-                <option value="ark">Arkansas</option>
-                <option value="cal">California</option>
-                <option value="colo">Colorado</option>
-                <option value="conn">Connecticut</option>
-                <option value="del">Delaware</option>
-                <option value="dc">District Of Columbia</option>
-                <option value="fla">Florida</option>
-                <option value="ga">Georgia</option>
-                <option value="haw">Hawaii</option>
-                <option value="idaho">Idaho</option>
-                <option value="ill">Illinois</option>
-                <option value="ind">Indiana</option>
-                <option value="iowa">Iowa</option>
-                <option value="kan">Kansas</option>
-                <option value="ky">Kentucky</option>
-                <option value="la">Louisiana</option>
-                <option value="me">Maine</option>
-                <option value="md">Maryland</option>
-                <option value="mass">Massachusetts</option>
-                <option value="mich">Michigan</option>
-                <option value="minn">Minnesota</option>
-                <option value="miss">Mississippi</option>
-                <option value="mo">Missouri</option>
-                <option value="mont">Montana</option>
-                <option value="neb">Nebraska</option>
-                <option value="nev">Nevada</option>
-                <option value="nh">New Hampshire</option>
-                <option value="nj">New Jersey</option>
-                <option value="nm">New Mexico</option>
-                <option value="ny">New York</option>
-                <option value="nc">North Carolina</option>
-                <option value="nd">North Dakota</option>
-                <option value="ohio">Ohio</option>
-                <option value="okla">Oklahoma</option>
-                <option value="or">Oregon</option>
-                <option value="pa">Pennsylvania</option>
-                <option value="ri">Rhode Island</option>
-                <option value="sc">South Carolina</option>
-                <option value="sd">South Dakota</option>
-                <option value="tenn">Tennessee</option>
-                <option value="tex">Texas</option>
-                <option value="utah">Utah</option>
-                <option value="vt">Vermont</option>
-                <option value="va">Virginia</option>
-                <option value="wash">Washington</option>
-                <option value="w-va">West Virginia</option>
-                <option value="wis">Wisconsin</option>
-                <option value="wyo">Wyoming</option>
-            </select>
+            <div class="scd_col">
+                <label style="width:auto;">Earliest Case Date:</label>
+                <input style="text-align: center; width: 7vmax; margin-right: 0;" placeholder="Any Date Range"
+                    class="textbox-n scd_col" type="text" onfocus="(this.type='date')" onblur="(this.type='text')"
+                    id="earliestdate" name="earliestdate">
+                <!-- Dropdown Menu for States -->
+                <select style="width: 6vw; margin-left:10px; margin-right: 9vmax;" class="" id="jurisdisction"
+                    name="state">
+                    <option value="all">All Jurisdictions</option>
+                    <option value="us">Federal</option>
+                    <option value="ala">Alabama</option>
+                    <option value="alaska">Alaska</option>
+                    <option value="ariz">Arizona</option>
+                    <option value="ark">Arkansas</option>
+                    <option value="cal">California</option>
+                    <option value="colo">Colorado</option>
+                    <option value="conn">Connecticut</option>
+                    <option value="del">Delaware</option>
+                    <option value="dc">District Of Columbia</option>
+                    <option value="fla">Florida</option>
+                    <option value="ga">Georgia</option>
+                    <option value="haw">Hawaii</option>
+                    <option value="idaho">Idaho</option>
+                    <option value="ill">Illinois</option>
+                    <option value="ind">Indiana</option>
+                    <option value="iowa">Iowa</option>
+                    <option value="kan">Kansas</option>
+                    <option value="ky">Kentucky</option>
+                    <option value="la">Louisiana</option>
+                    <option value="me">Maine</option>
+                    <option value="md">Maryland</option>
+                    <option value="mass">Massachusetts</option>
+                    <option value="mich">Michigan</option>
+                    <option value="minn">Minnesota</option>
+                    <option value="miss">Mississippi</option>
+                    <option value="mo">Missouri</option>
+                    <option value="mont">Montana</option>
+                    <option value="neb">Nebraska</option>
+                    <option value="nev">Nevada</option>
+                    <option value="nh">New Hampshire</option>
+                    <option value="nj">New Jersey</option>
+                    <option value="nm">New Mexico</option>
+                    <option value="ny">New York</option>
+                    <option value="nc">North Carolina</option>
+                    <option value="nd">North Dakota</option>
+                    <option value="ohio">Ohio</option>
+                    <option value="okla">Oklahoma</option>
+                    <option value="or">Oregon</option>
+                    <option value="pa">Pennsylvania</option>
+                    <option value="ri">Rhode Island</option>
+                    <option value="sc">South Carolina</option>
+                    <option value="sd">South Dakota</option>
+                    <option value="tenn">Tennessee</option>
+                    <option value="tex">Texas</option>
+                    <option value="utah">Utah</option>
+                    <option value="vt">Vermont</option>
+                    <option value="va">Virginia</option>
+                    <option value="wash">Washington</option>
+                    <option value="w-va">West Virginia</option>
+                    <option value="wis">Wisconsin</option>
+                    <option value="wyo">Wyoming</option>
+                </select>
+            </div>
         </div>
-        <button type="submit" class="btn btn-info"> Search </button>
+
         <br>
         {% if not user_query %}
         <center>
@@ -163,6 +239,13 @@
                             </p>
 
                             <p>
+                                <span style="font-weight: bold;
+                                font-size: large;
+                                font-style: normal;
+                                color: rgba(9, 9, 9, 0.845)"> Score: {{data[d].score}} </span>
+                            </p>
+
+                            <p>
                                 <a href="{{data[d].url}}" target="_blank">Follow this discussion</a>
                             </p>
                         </div>
@@ -182,12 +265,12 @@
     </center>
     {% endif %}
     <!-- End-->
-    {% if (not casedata) and (not data) %}
+    <!-- {% if (not casedata) and (not data) %}
     <div class="topcorner">
         <p>Project Name: {{ name }}</p>
         <p>Student Names: {{ netid }}</p>
     </div>
-    {% endif %}
+    {% endif %} -->
 </body>
 
 </html>

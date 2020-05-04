@@ -6,6 +6,7 @@ import os
 from sklearn.feature_extraction.text import TfidfVectorizer, ENGLISH_STOP_WORDS
 from sklearn.metrics.pairwise import cosine_similarity
 from nltk import word_tokenize
+import nltk.tokenize
 from nltk.stem.porter import PorterStemmer
 import string
 import requests
@@ -13,6 +14,8 @@ import requests
 import sys
 sys.path.insert(1, '../../..')
 import utils
+
+from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 
 
 def tokenize(text:str):
@@ -24,6 +27,7 @@ def tokenize(text:str):
     return [stemmer.stem(word) for word in word_tokenize(text.translate(trans_table)) if len(word) > 1]
 
 
+<<<<<<< HEAD
 def get_court_jurisdictions():
     """
     Uses CourtListener's court API to generate a mapping of courts to
@@ -64,6 +68,9 @@ def get_court_jurisdictions():
 
 
 def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
+=======
+def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = '', ncases=10):
+>>>>>>> master
     """
     Finds cases relevant to query from CAP API based on the similarity of the
     case summary to the query. Cases are then ranked by tfidf cosine similarity
@@ -114,8 +121,31 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
 
     case_names = [case['name'] for case in cases]
     case_texts = [case['casebody']['data']['head_matter'].replace("\n", " ") for case in cases]
+    
+    case_opinions = []
+    for opinions in [case['casebody']['data']['opinions'] for case in cases]:
+        for opinion in opinions:
+            if opinion['type'] == "majority":
+                case_opinions.append(opinion['text'].replace("\n", " "))
+                break
+
+    case_summaries = []
+    for idx, case in enumerate(cases):
+        case_sents = {(k[:-1] if k[-1] == "." else k):False for k in nltk.tokenize.sent_tokenize(case_texts[idx]) + nltk.tokenize.sent_tokenize(case_opinions[idx])}
+        important_lines = case['preview']
+    
+        for line in important_lines:
+            line = line.replace("<em class='search_highlight'>", "").replace("</em>", "").replace(".", "")
+            for sent,_ in case_sents.items():
+                if line in sent:
+                    case_sents[sent] = True
+                    break
+            
+        case_summaries.append(". ".join([sent for sent,valid in case_sents.items() if valid]))
+
     case_urls = [case['frontend_url'] for case in cases]
 
+<<<<<<< HEAD
     case_opinions = []
     for opinions in [case['casebody']['data']['opinions'] for case in cases]:
         for opinion in opinions:
@@ -236,41 +266,69 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
         if case_juris == "appeal" and case_outcomes[-1] != "unknown":
             if appeal_outcomes[-1] == "negative":
                 case_outcomes[-1] = ("plaintiff" if case_outcomes[-1].lower() == "defendant" else "defendant")
- 
-    ## ==== <STEP 4: rank cases by similarity to query> ==== ##
+
+    documents = [TaggedDocument(doc, [i]) for i, doc in enumerate(case_texts)]
+    model = Doc2Vec(documents, vector_size=5, window=2, min_count=1, workers=4)
+    updated_query = model.infer_vector([query])
+    sims = model.docvecs.most_similar([updated_query], topn=ncases)
+    print(sims)
+    out_cases = []
+    # for doc in sims:
+    #     print(documents[doc[0]])
+    # out_cases = dict()
+    for i in sims:
+        case_dict = dict()
+        case_dict.update({
+            'case_name':case_names[i[0]],
+            'case_summary':case_summaries[i[0]],
+            'case_url':case_urls[i[0]],
+            'score': (i[1] + 1) / 2
+        })
+        out_cases.append(case_dict)
+    return (out_cases, debug_message)
+        
+        
+    # case_opinions = []
+    # for opinions in [case['casebody']['data']['opinions'] for case in cases]:
+    #     for opinion in opinions:
+    #         if opinion['type'] == "majority":
+    #             case_opinions.append(opinion['text'].replace("\n", " "))
+    #             break
+
+    ## STEP 3: assign similarity scores to cases ##
 
     # compute tf-idf scores
-    if stem_tokens:
-        stemmer = PorterStemmer()
-        vec = TfidfVectorizer(tokenizer=tokenize, 
-                        min_df=.01, 
-                        max_df=0.8, 
-                        max_features=5000, 
-                        stop_words=[stemmer.stem(item) for item in ENGLISH_STOP_WORDS], 
-                        norm='l2')
-    else:
-        vec = TfidfVectorizer(min_df=.01, 
-                        max_df=0.8, 
-                        max_features=5000, 
-                        stop_words='english', 
-                        norm='l2')
-    try:
-        # compute cosine similarity of cases to search query
-        tfidf_matrix = vec.fit_transform(case_texts + [query]).toarray()
-        query_vec = tfidf_matrix[-1]
-        scores = [cosine_similarity(query_vec.reshape(1,-1), doc_vec.reshape(1,-1))[0][0] for doc_vec in tfidf_matrix[:-1]]
+    # if stem_tokens:
+    #     stemmer = PorterStemmer()
+    #     vec = TfidfVectorizer(tokenizer=tokenize, 
+    #                     min_df=.01, 
+    #                     max_df=0.8, 
+    #                     max_features=5000, 
+    #                     stop_words=[stemmer.stem(item) for item in ENGLISH_STOP_WORDS], 
+    #                     norm='l2')
+    # else:
+    #     vec = TfidfVectorizer(min_df=.01, 
+    #                     max_df=0.8, 
+    #                     max_features=5000, 
+    #                     stop_words='english', 
+    #                     norm='l2')
+    # try:
+    #     # compute cosine similarity of cases to search query
+    #     tfidf_matrix = vec.fit_transform(case_texts + [query]).toarray()
+    #     query_vec = tfidf_matrix[-1]
+    #     scores = [cosine_similarity(query_vec.reshape(1,-1), doc_vec.reshape(1,-1))[0][0] for doc_vec in tfidf_matrix[:-1]]
 
-        ## ==== <STEP 5: sort and return cases> ==== ##
+    #     ## STEP 4: sort and return cases ##
 
-        results = pd.DataFrame(list(zip(case_names, case_texts, case_urls, scores)), columns=['case_name', 'case_summary', 'case_url', 'score'])
-        results = results.sort_values('score', ascending=False).reset_index(drop=True)
+    #     results = pd.DataFrame(list(zip(case_names, case_texts, case_urls, scores)), columns=['case_name', 'case_summary', 'case_url', 'score'])
+    #     results = results.sort_values('score', ascending=False).reset_index(drop=True)
         
-        return (results.to_dict('records'), debug_message)
-    except:
-        debug_message = 'No cases found. Please enter a new query or try a wider date range!'
-        return (None, debug_message)
+    #     return (results.to_dict('records'), debug_message)
+    # except:
+    #     debug_message = 'No cases found. Please enter a new query or try a wider date range!'
+    #     return (None, debug_message)
 
     
 
 if __name__ == "__main__":
-    rank_cases("neighbor dog destroyed garden")
+    rank_cases("fence built on my property")
