@@ -86,7 +86,7 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate='', ncas
     """
 
     ## ==== <STEP 1: load cases> ==== ##
-
+    print("rank_cases")
     debug_message = ''
     try:
         # query data
@@ -291,7 +291,7 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate='', ncas
             'case_summary' : case_summaries[i[0]],
             'case_url'     : case_urls[i[0]],
             'case_outcome' : case_outcomes[i[0]],
-            'score'        : (i[1] + 1) / 2
+            'score'        : round((i[1] + 1) / 2, 3)
         })
         out_cases.append(case_dict)
         
