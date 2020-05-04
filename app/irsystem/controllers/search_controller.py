@@ -66,6 +66,7 @@ def preload_data_tfidf():
     
 
 def wrap_fun(query, minimum_date, jurisdiction, suing="yes"):
+    global data
     global status
     global doc_by_vocab
     #global doc_by_vocab_flag
