@@ -27,7 +27,6 @@ def tokenize(text:str):
     return [stemmer.stem(word) for word in word_tokenize(text.translate(trans_table)) if len(word) > 1]
 
 
-<<<<<<< HEAD
 def get_court_jurisdictions():
     """
     Uses CourtListener's court API to generate a mapping of courts to
@@ -67,10 +66,7 @@ def get_court_jurisdictions():
     return {court['full_name']: jurisdictions[court['jurisdiction']] for court in courts}
 
 
-def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = ''):
-=======
 def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = '', ncases=10):
->>>>>>> master
     """
     Finds cases relevant to query from CAP API based on the similarity of the
     case summary to the query. Cases are then ranked by tfidf cosine similarity
@@ -145,7 +141,6 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = '', nc
 
     case_urls = [case['frontend_url'] for case in cases]
 
-<<<<<<< HEAD
     case_opinions = []
     for opinions in [case['casebody']['data']['opinions'] for case in cases]:
         for opinion in opinions:
