@@ -58,6 +58,7 @@ def search():
     # Jurisdiction level ('Federal' or state abbreviation)
     jurisdiction = request.args.get('state')
     minimum_date = request.args.get('earliestdate')
+    suing = request.args.get('sue-status')
     print(query)
     print(jurisdiction)
     print(minimum_date)
@@ -129,6 +130,36 @@ def search():
                     1000, len(case['case_summary']))]
                 if len(case['case_summary']) == 1000:
                     case['case_summary'] = case['case_summary'] + '...'
+
+            # calculate judgment score
+            judgment_score = 0
+            judgment_rec = ""
+            score_limit = 0
+            confidence = 0
+            for case in caselaw:
+                score_limit += case['score']
+                if case['case_outcome'] == "plaintiff":
+                    judgment_score += case['score']
+                    confidence += 1
+                elif case['case_outcome'] == "defendant":
+                    judgment_score -= case['score']
+                    confidence += 1
+            confidence *= 100/len(caselaw)
+            if suing == "no":
+                judgment_score *= -1
+
+            if judgment_score >= -score_limit and judgment_score < -score_limit/4:
+                judgment_rec = "Likely to lose! ({}% confident)".format(confidence)
+            elif judgment_score >= -score_limit/4 and judgment_score <= score_limit/4:
+                judgment_rec = "Could go either way ({}% confident)".format(confidence)
+            elif judgment_score > score_limit/4 and judgment_score <= score_limit:
+                judgment_rec = "Likely to win! ({}% confident)".format(confidence)
+            
+            for case in caseresults:
+                case['case_outcome'] = case['case_outcome'][0].capitalize() + case['case_outcome'][1:]
+            
+            
+
         # =====Processing results================
         print('completed caselaw retrieval')
         for i in range(5):
@@ -145,6 +176,7 @@ def search():
                                output_message=output_message, data=res[:5], casedata=caseresults,
                                caselaw_message=caselaw_message,
                                user_query=query, debug_message=debug_msg,
+                               judgment_rec=judgment_rec,
                                is_error=error)
 
 

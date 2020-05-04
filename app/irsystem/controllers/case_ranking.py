@@ -106,7 +106,7 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = '', nc
         print("API request failed")
         debug_message = 'The Case Law API is currently down. Sorry for the inconvenience!'
         return (None, debug_message)
-    
+
     ## ==== <STEP 2: pre-processing> ==== ##
 
     for case in cases:
@@ -120,33 +120,21 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = '', nc
     
     case_opinions = []
     for opinions in [case['casebody']['data']['opinions'] for case in cases]:
+        op_num = 0
+        if not opinions:
+            # no opinions (never happened yet)
+            case_opinions.append(" ")
         for opinion in opinions:
+            op_num += 1
             if opinion['type'] == "majority":
                 case_opinions.append(opinion['text'].replace("\n", " "))
                 break
-
-    case_summaries = []
-    for idx, case in enumerate(cases):
-        case_sents = {(k[:-1] if k[-1] == "." else k):False for k in nltk.tokenize.sent_tokenize(case_texts[idx]) + nltk.tokenize.sent_tokenize(case_opinions[idx])}
-        important_lines = case['preview']
-    
-        for line in important_lines:
-            line = line.replace("<em class='search_highlight'>", "").replace("</em>", "").replace(".", "")
-            for sent,_ in case_sents.items():
-                if line in sent:
-                    case_sents[sent] = True
-                    break
-            
-        case_summaries.append(". ".join([sent for sent,valid in case_sents.items() if valid]))
+            if op_num == len(opinions):
+                # majority opinion not found (very rare)
+                case_opinions.append(opinions[0]['text'].replace("\n", " "))
+                break
 
     case_urls = [case['frontend_url'] for case in cases]
-
-    case_opinions = []
-    for opinions in [case['casebody']['data']['opinions'] for case in cases]:
-        for opinion in opinions:
-            if opinion['type'] == "majority":
-                case_opinions.append(opinion['text'].replace("\n", " "))
-                break
 
     case_jurisdictions = []
     # load static info on court type
@@ -266,7 +254,22 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = '', nc
     model = Doc2Vec(documents, vector_size=5, window=2, min_count=1, workers=4)
     updated_query = model.infer_vector([query])
     sims = model.docvecs.most_similar([updated_query], topn=ncases)
-    print(sims)
+
+    case_summaries = [""]*len(cases)
+    for idx,_ in sims:
+        case_sents = {(k[:-1] if k[-1] == "." else k): False 
+                       for k in nltk.tokenize.sent_tokenize(case_texts[idx]) + nltk.tokenize.sent_tokenize(case_opinions[idx])}
+        important_lines = cases[idx]['preview']
+    
+        for line in important_lines:
+            line = line.replace("<em class='search_highlight'>", "").replace("</em>", "").replace(".", "")
+            for sent,_ in case_sents.items():
+                if line in sent:
+                    case_sents[sent] = True
+                    break
+
+        case_summaries[idx] = ". ".join([sent for sent,valid in case_sents.items() if valid])
+
     out_cases = []
     # for doc in sims:
     #     print(documents[doc[0]])
@@ -277,6 +280,7 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = '', nc
             'case_name':case_names[i[0]],
             'case_summary':case_summaries[i[0]],
             'case_url':case_urls[i[0]],
+            'case_outcome':case_outcomes[i[0]],
             'score': (i[1] + 1) / 2
         })
         out_cases.append(case_dict)

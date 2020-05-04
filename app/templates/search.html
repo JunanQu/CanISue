@@ -167,6 +167,14 @@
                     <option value="wyo">Wyoming</option>
                 </select>
             </div>
+            <div class="trd_col">
+                <label style="width:auto;">Suing or being sued?</label>
+                <select style="width: 6vw; margin-left:10px; margin-right: 9vmax;" class="" id="suing"
+                    name="sue-status">
+                    <option value="yes">Suing</option>
+                    <option value="no">Being sued</option>
+                </select>
+            </div>
         </div>
 
         <br>
@@ -189,6 +197,9 @@
             Case results API is currently down
         </p>
         {% else %}
+        <div style="width:45%; height:50px; display:inline-block; margin-left: 5%;">
+            <h2 style="white-space: pre">Verdict: {{judgment_rec}}</h2>
+        </div>
         <div
             style="overflow: auto; width:45%; height:800px; display:inline-block; margin-left: 5%; border: 5px solid black ;">
             <div class=" container" style="text-align: center; width:95%">
@@ -210,7 +221,14 @@
                                 <span style="font-weight: bold;
                                 font-size: large;
                                 font-style: normal;
-                                color: rgba(9, 9, 9, 0.845)"> Score: {{casedata[d].score}} </span>
+                                color: rgba(9, 9, 9, 0.845)"> Similarity score: {{casedata[d].score*100}}% </span>
+                            </p>
+
+                            <p>
+                                <span style="font-weight: bold;
+                                font-size: large;
+                                font-style: normal;
+                                color: rgba(9, 9, 9, 0.845)"> Winner: {{casedata[d].case_outcome}} </span>
                             </p>
 
                             <p>
