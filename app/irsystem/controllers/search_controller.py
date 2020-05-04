@@ -142,13 +142,13 @@ def wrap_fun(query, minimum_date, jurisdiction, suing="yes"):
                 judgment_score *= -1
 
             if judgment_score >= -score_limit and judgment_score < -score_limit/4:
-                judgment_rec = "Likely to lose! ({}% confident)".format(
+                judgment_rec = "Verdict: Likely to lose! ({}% confident)".format(
                     confidence)
             elif judgment_score >= -score_limit/4 and judgment_score <= score_limit/4:
-                judgment_rec = "Could go either way ({}% confident)".format(
+                judgment_rec = "Verdict: Could go either way ({}% confident)".format(
                     confidence)
             elif judgment_score > score_limit/4 and judgment_score <= score_limit:
-                judgment_rec = "Likely to win! ({}% confident)".format(
+                judgment_rec = "Verdict: Likely to win! ({}% confident)".format(
                     confidence)
 
             for case in caseresults:

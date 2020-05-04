@@ -125,6 +125,7 @@
 
             <div class="scd_col">
                 <!-- Dropdown Menu for States -->
+                <label style="width:auto;">Jurisdiction Area:</label>
                 <select ng-init="state || 'all'" style="width: auto; margin-left:10px; margin-right: 0;" class=""
                     id="jurisdisction" name="state" ng-model="state">
                     <option value="" selected>All Jurisdictions</option>
@@ -182,10 +183,9 @@
                     <option value="wyo">Wyoming</option>
                 </select>
             </div>
-            <div class="trd_col">
+            <div class="scd_col">
                 <label style="width:auto;">Suing or being sued?</label>
-                <select ng-model="suing" style="width: 6vw; margin-left:10px; margin-right: 9vmax;" class="" id="suing"
-                    name="sue-status">
+                <select ng-model="suing" name="sue-status">
                     <option value="">Suing</option>
                     <option value="no">Being sued</option>
                 </select>
@@ -227,7 +227,7 @@
         <center>
             <div style="width:45%; height:50px; display:inline-block; margin-left: 5%;">
                 {% raw %}
-                <h2 style="white-space: pre">Verdict: {{judgment_rec}}</h2>
+                <h2 style="white-space: pre">{{judgment_rec}}</h2>
                 {% endraw %}
             </div>
         </center>
