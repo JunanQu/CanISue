@@ -30,9 +30,6 @@ net_id = "Junan Qu (jq77), Zachary Shine (zs92), Ian Paul (ijp9), Max Chen (mlc2
 #r = requests.get(
 #    "https://storage.googleapis.com/can_i_sue_reddit/reddit_data.json")
 #data = r.json()
-data=None
-tfidf_vec=None
-doc_by_vocab=None
 # with app.app_context():
 #     data = current_app.data
 #     tfidf_vec = current_app.tfidf_vectorizer
