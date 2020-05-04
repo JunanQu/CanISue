@@ -44,25 +44,25 @@ tfidf_vec = TfidfVectorizer(min_df=.01,
 print("loaded reddit info ")
 status = 0
 
-@app.before_first_request
-def preload_data_tfidf():
-    global data
-    global tfidf_vec
-    global doc_by_vocab
-    data = requests.get('https://storage.googleapis.com/can_i_sue_reddit/reddit_data.json').json()
-    tfidf_vec = TfidfVectorizer(min_df=.01,
-                                max_df=0.8,
-                                max_features=5000,
-                                stop_words='english',
-                                norm='l2')
-    print("loaded data and initialized vectorizer")
-    d_array = []
-    for d in data:
-        s = str(data[d]['selftext'])+str(data[d]['title'])
-        d_array.append(s)
-    print("created d_array")
-    doc_by_vocab = tfidf_vec.fit_transform(d_array).toarray()
-    print("fit transformed")
+# @app.before_first_request
+# def preload_data_tfidf():
+#     global data
+#     global tfidf_vec
+#     global doc_by_vocab
+#     data = requests.get('https://storage.googleapis.com/can_i_sue_reddit/reddit_data.json').json()
+#     tfidf_vec = TfidfVectorizer(min_df=.01,
+#                                 max_df=0.8,
+#                                 max_features=5000,
+#                                 stop_words='english',
+#                                 norm='l2')
+#     print("loaded data and initialized vectorizer")
+#     d_array = []
+#     for d in data:
+#         s = str(data[d]['selftext'])+str(data[d]['title'])
+#         d_array.append(s)
+#     print("created d_array")
+#     doc_by_vocab = tfidf_vec.fit_transform(d_array).toarray()
+#     print("fit transformed")
     
 
 def wrap_fun(query, minimum_date, jurisdiction, suing="yes"):
