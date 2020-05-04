@@ -12,6 +12,7 @@ import os
 import time
 from flask import current_app
 from app import app
+import scipy.spatial.distance
 print(os.getcwd())
 
 project_name = "Can I Sue?"
