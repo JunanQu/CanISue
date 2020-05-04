@@ -1,3 +1,5 @@
+from gensim.models.doc2vec import Doc2Vec, TaggedDocument
+import utils
 import json
 import re
 import numpy as np
@@ -12,21 +14,18 @@ import string
 
 import sys
 sys.path.insert(1, '../../..')
-import utils
-
-from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 
 
-def tokenize(text:str):
+def tokenize(text: str):
     """
     Tokenizer that removes stemmings from tokens. (currently unused)
     """
-    trans_table = {ord(c): None for c in string.punctuation + string.digits}    
+    trans_table = {ord(c): None for c in string.punctuation + string.digits}
     stemmer = PorterStemmer()
     return [stemmer.stem(word) for word in word_tokenize(text.translate(trans_table)) if len(word) > 1]
 
 
-def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = '', ncases=10):
+def rank_cases(query: str, stem_tokens=False, jurisdiction='', earlydate='', ncases=10):
     """
     Finds cases relevant to query from CAP API based on the similarity of the
     case summary to the query. Cases are then ranked by tfidf cosine similarity
@@ -47,7 +46,8 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = '', nc
     debug_message = ''
     try:
         # query data
-        url = "https://api.case.law/v1/cases/?search='{}'&full_case=TRUE".format(query)
+        url = "https://api.case.law/v1/cases/?search='{}'&full_case=TRUE".format(
+            query)
         if jurisdiction == 'all':
             jurisdiction = ''
         else:
@@ -56,9 +56,10 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = '', nc
             url = url + '&decision_date_min=' + str(earlydate)
         response = utils.get_request_caselaw(url).json()
         cases = response['results']
-        
-        i = 1 # limit to 5 requests (500 cases) because that should be more than enough
-        while response['next'] and i < 2: 
+
+        # limit to 5 requests (500 cases) because that should be more than enough
+        i = 1
+        while response['next'] and i < 2:
             response = utils.get_request_caselaw(response['next']).json()
             cases.extend(response['results'])
             i += 1
@@ -68,7 +69,7 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = '', nc
         print("API request failed")
         debug_message = 'The Case Law API is currently down. Sorry for the inconvenience!'
         return (None, debug_message)
-    
+
     ## STEP 2: pre-processing ##
 
     for case in cases:
@@ -79,8 +80,9 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = '', nc
 
     # enforce case ordering
     case_names = [case['name'] for case in cases]
-    case_texts = [case['casebody']['data']['head_matter'].replace("\n", " ") for case in cases]
-    
+    case_texts = [case['casebody']['data']
+                  ['head_matter'].replace("\n", " ") for case in cases]
+
     case_opinions = []
     for opinions in [case['casebody']['data']['opinions'] for case in cases]:
         for opinion in opinions:
@@ -90,17 +92,20 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = '', nc
 
     case_summaries = []
     for idx, case in enumerate(cases):
-        case_sents = {(k[:-1] if k[-1] == "." else k):False for k in nltk.tokenize.sent_tokenize(case_texts[idx]) + nltk.tokenize.sent_tokenize(case_opinions[idx])}
+        case_sents = {(k[:-1] if k[-1] == "." else k): False for k in nltk.tokenize.sent_tokenize(
+            case_texts[idx]) + nltk.tokenize.sent_tokenize(case_opinions[idx])}
         important_lines = case['preview']
-    
+
         for line in important_lines:
-            line = line.replace("<em class='search_highlight'>", "").replace("</em>", "").replace(".", "")
-            for sent,_ in case_sents.items():
+            line = line.replace("<em class='search_highlight'>", "").replace(
+                "</em>", "").replace(".", "")
+            for sent, _ in case_sents.items():
                 if line in sent:
                     case_sents[sent] = True
                     break
-            
-        case_summaries.append(". ".join([sent for sent,valid in case_sents.items() if valid]))
+
+        case_summaries.append(
+            ". ".join([sent for sent, valid in case_sents.items() if valid]))
 
     case_urls = [case['frontend_url'] for case in cases]
 
@@ -116,15 +121,14 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = '', nc
     for i in sims:
         case_dict = dict()
         case_dict.update({
-            'case_name':case_names[i[0]],
-            'case_summary':case_summaries[i[0]],
-            'case_url':case_urls[i[0]],
+            'case_name': case_names[i[0]],
+            'case_summary': case_summaries[i[0]],
+            'case_url': case_urls[i[0]],
             'score': (i[1] + 1) / 2
         })
         out_cases.append(case_dict)
     return (out_cases, debug_message)
 
-        
     # case_opinions = []
     # for opinions in [case['casebody']['data']['opinions'] for case in cases]:
     #     for opinion in opinions:
@@ -137,17 +141,17 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = '', nc
     # compute tf-idf scores
     # if stem_tokens:
     #     stemmer = PorterStemmer()
-    #     vec = TfidfVectorizer(tokenizer=tokenize, 
-    #                     min_df=.01, 
-    #                     max_df=0.8, 
-    #                     max_features=5000, 
-    #                     stop_words=[stemmer.stem(item) for item in ENGLISH_STOP_WORDS], 
+    #     vec = TfidfVectorizer(tokenizer=tokenize,
+    #                     min_df=.01,
+    #                     max_df=0.8,
+    #                     max_features=5000,
+    #                     stop_words=[stemmer.stem(item) for item in ENGLISH_STOP_WORDS],
     #                     norm='l2')
     # else:
-    #     vec = TfidfVectorizer(min_df=.01, 
-    #                     max_df=0.8, 
-    #                     max_features=5000, 
-    #                     stop_words='english', 
+    #     vec = TfidfVectorizer(min_df=.01,
+    #                     max_df=0.8,
+    #                     max_features=5000,
+    #                     stop_words='english',
     #                     norm='l2')
     # try:
     #     # compute cosine similarity of cases to search query
@@ -159,13 +163,12 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = '', nc
 
     #     results = pd.DataFrame(list(zip(case_names, case_texts, case_urls, scores)), columns=['case_name', 'case_summary', 'case_url', 'score'])
     #     results = results.sort_values('score', ascending=False).reset_index(drop=True)
-        
+
     #     return (results.to_dict('records'), debug_message)
     # except:
     #     debug_message = 'No cases found. Please enter a new query or try a wider date range!'
     #     return (None, debug_message)
 
-    
 
 if __name__ == "__main__":
     rank_cases("fence built on my property")
