@@ -98,10 +98,12 @@ def rank_cases(query:str, stem_tokens=False, jurisdiction='', earlydate = '', nc
         cases = response['results']
         
         i = 1 # limit to 5 requests (500 cases) because that should be more than enough
-        while response['next'] and i < 5: 
+        while response['next'] and i < 2: 
             response = utils.get_request_caselaw(response['next']).json()
             cases.extend(response['results'])
             i += 1
+        # cases=cases[:250]
+        print(len(cases))
     except Exception:
         print("API request failed")
         debug_message = 'The Case Law API is currently down. Sorry for the inconvenience!'
