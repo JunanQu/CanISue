@@ -9,6 +9,9 @@ from . import *
 from app.irsystem.models.helpers import *
 from app.irsystem.models.helpers import NumpyEncoder as NumpyEncoder
 import os
+import time
+from flask import current_app
+from app import app
 print(os.getcwd())
 
 project_name = "Can I Sue?"
