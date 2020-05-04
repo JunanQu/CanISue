@@ -35,46 +35,22 @@ tfidf_vec = TfidfVectorizer(min_df=.01,
                             stop_words='english',
                             norm='l2')
 print("loaded reddit info ")
-
-
-# =====REDDIT COSINE======
-
-# title, id, selftext, url, created_utc e60m7
-
-
-def get_sim(q_vector, post_vector):
-    num = q_vector.dot(post_vector)
-    den = np.multiply(np.sqrt(q_vector.dot(q_vector)),
-                      np.sqrt(post_vector.dot(post_vector)))
-    return num/den
-
-
-# =====END=======
-
-
-@irsystem.route('/about.html')
-def go_to_about():
-    return render_template('about.html')
-
-
-global status
-status = 0
-
-
-def wrap_fun(query, minimum_date, jurisdiction):
+status=0
+def wrap_fun(query, minimum_date, jurisdiction, suing="yes"):
+    print("here")
     global status
     global doc_by_vocab
     global doc_by_vocab_flag
     global tfidf_vec
 
-    print("!!!!")
+    print("!!!!", flush=True)
     print(query, minimum_date, jurisdiction)
     # Search Query
 
     # Jurisdiction level ('Federal' or state abbreviation)
-    jurisdiction = request.args.get('state')
-    minimum_date = request.args.get('earliestdate')
-    suing = request.args.get('sue-status')
+    # jurisdiction = request.args.get('state')
+    # minimum_date = request.args.get('earliestdate')
+    # suing = request.args.get('sue-status')
     print(query)
     print(jurisdiction)
     print(minimum_date)
@@ -90,7 +66,7 @@ def wrap_fun(query, minimum_date, jurisdiction):
         # title, id, selftext, url, created_utc e60m7
         num_posts = len(data)
         index_to_posts_id = {index: post_id for index,
-                             post_id in enumerate(data)}
+                            post_id in enumerate(data)}
 
         if doc_by_vocab_flag == False:
             # d_array = [str(data[d]['selftext'])+str(data[d]['title']) for d in data]
@@ -109,7 +85,7 @@ def wrap_fun(query, minimum_date, jurisdiction):
             q_vector = doc_by_vocab[post_index]
             num = q_vector.dot(post_vector)
             den = np.multiply(np.sqrt(q_vector.dot(q_vector)),
-                              np.sqrt(post_vector.dot(post_vector)))
+                            np.sqrt(post_vector.dot(post_vector)))
             score = num/den
             if np.isnan(score):
                 score = 0
@@ -209,6 +185,16 @@ def wrap_fun(query, minimum_date, jurisdiction):
         return project_name, net_id, output_message, res[:5], caseresults, caselaw_message, query, debug_msg, judgment_rec, error
 
 
+@irsystem.route('/about.html')
+def go_to_about():
+    return render_template('about.html')
+
+
+
+
+
+
+
 @irsystem.route('/', methods=['GET'])
 def search():
     return render_template('search.html')
@@ -243,13 +229,13 @@ def progress():
 
 @irsystem.route('/start', methods=['POST'])
 def get_counts():
-
     data = json.loads(request.data.decode())
     data = data['data']
     print(data)
     query = data[0]
     min_date = data[1]
     state = data[2]
+    # suing = data[3]
 
     if min_date is None:
         min_date = ''
@@ -259,6 +245,7 @@ def get_counts():
     print(query)
     print(min_date)
     print(state)
+    print("queuing")
     job = q.enqueue_call(
         func=wrap_fun, args=(query, min_date,
                              state), result_ttl=5000
