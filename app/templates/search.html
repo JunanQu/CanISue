@@ -93,25 +93,24 @@
 
 
         <div class="form-group" style="">
-            {% if user_query %}
-            <!-- If this is a search result, auto fill in the user's query -->
+            <div class="scd_col">
+                {% if user_query %}
+                <!-- If this is a search result, auto fill in the user's query -->
 
+                <input id="input" style="width: 23vmax;" type="text" name="search" class="form-control"
+                    placeholder="{{user_query}}">
+                {%else %}
+                <input id=" input" style="width: 23vmax;" type="text" name="search" class="form-control"
+                    placeholder="Search Cases">
+                {% endif %}
+                <button type="submit" class="about_btn" style="padding: 3px 24px;"> Search </button>
+            </div>
 
-            <input id="input" style="width: 23vmax;" type="text" name="search" class="form-control"
-                placeholder="{{user_query}}">
-            {%else %}
-            <input id=" input" style="width: 23vmax;" type="text" name="search" class="form-control"
-                placeholder="Search Cases">
-            {% endif %}
-            <button type="submit" class="about_btn" style="padding: 3px 24px;"> Search </button>
-            <!-- <input type="date" id="test" name="test" placeholder="Earliest Case Date"> -->
             <div class="scd_col">
                 <label style="width:auto;">Earliest Case Date:
-                        <input style="text-align: center; margin-right: 0;" placeholder="Any Date Range"
-                        type="text" onfocus="(this.type='date')" onblur="(this.type='text')"
-                        id="earliestdate" name="earliestdate">
+                    <input style="text-align: center; margin-right: 0;" placeholder="Any Date Range" type="text"
+                        onfocus="(this.type='date')" onblur="(this.type='text')" id="earliestdate" name="earliestdate">
                 </label>
-                
             </div>
             <div class="scd_col">
                 <!-- Dropdown Menu for States -->
