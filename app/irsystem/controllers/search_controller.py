@@ -16,6 +16,7 @@ import scipy.spatial.distance
 from django.utils.safestring import mark_safe
 from nltk.tokenize import word_tokenize, sent_tokenize
 import string
+from sklearn.metrics.pairwise import cosine_similarity
 print(os.getcwd())
 
 project_name = "Can I Sue?"
@@ -98,7 +99,8 @@ def search():
 
         post_vector = tfidf_vec.transform([query]).toarray()[0]
         start = time.time()
-        sims = scipy.spatial.distance.cdist(doc_by_vocab, [post_vector], 'cosine').reshape(-1)
+        sims = cosine_similarity([post_vector], doc_by_vocab).reshape(-1)
+        #sims = scipy.spatial.distance.cdist(doc_by_vocab, [post_vector], 'cosine').reshape(-1)
         end = time.time()
         print('Reddit cosine Time elapsed: ', str(end - start))
         # quit()
@@ -108,7 +110,7 @@ def search():
             if np.isnan(score):
                 score = 0.0
             else:
-                print(score)
+                # print(score)
                 score = round(score, 3)
                 #print(score)
             sim_posts.append((score, i))
