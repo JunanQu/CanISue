@@ -210,7 +210,7 @@ def search():
                                caselaw_message=caselaw_message,
                                user_query=query, debug_message=debug_msg,
                                judgment_rec=judgment_rec,
-                               is_error=error, num_cases=ncases)
+                               is_error=error, num_cases=int(ncases))
 
 
 @irsystem.route('/about', methods=['GET'])
