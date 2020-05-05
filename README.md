@@ -1,4 +1,4 @@
-# Can I Sue
+# Can I Sue? 
 Team: Max Chen, Nikhil Saggi, Zachary Shine, Junan Qu, Ian Paul
 
 
