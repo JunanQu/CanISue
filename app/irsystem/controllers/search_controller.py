@@ -111,7 +111,7 @@ def search():
                 score = 0.0
             else:
                 # print(score)
-                score = round(score, 3)
+                score = round(score, 3) * 100
                 #print(score)
             sim_posts.append((score, i))
         
