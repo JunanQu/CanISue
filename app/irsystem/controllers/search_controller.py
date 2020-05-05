@@ -182,11 +182,11 @@ def search():
                 judgment_score *= -1
 
             if judgment_score >= -score_limit and judgment_score < -score_limit/4:
-                judgment_rec = "Likely to lose! ({}% confident)".format(confidence)
+                judgment_rec = "Likely to lose! (With {}% confidence)".format(confidence)
             elif judgment_score >= -score_limit/4 and judgment_score <= score_limit/4:
-                judgment_rec = "Could go either way ({}% confident)".format(confidence)
+                judgment_rec = "Could go either way (With {}% confidence)".format(confidence)
             elif judgment_score > score_limit/4 and judgment_score <= score_limit:
-                judgment_rec = "Likely to win! ({}% confident)".format(confidence)
+                judgment_rec = "Likely to win! With ({}% confidence)".format(confidence)
             
             for case in caseresults:
                 case['case_outcome'] = case['case_outcome'][0].capitalize() + case['case_outcome'][1:]
@@ -200,8 +200,8 @@ def search():
             if (post['selftext'] is not None) and (len(post['selftext'])) > 500:
                 post['selftext'] = post['selftext'][0:500] + '...'
 
-        caselaw_message = "Historical precedences:"
-        output_message = "Past discussions:"
+        caselaw_message = "Court Cases:"
+        output_message = "Discussion Online:"
         print('rendering template..')
         # ============================
 
