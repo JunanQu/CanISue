@@ -164,8 +164,8 @@ def search():
                 words_in_query = word_tokenize(query)
                 for word in words_in_case:
                     if not (word in string.punctuation or word in stopwords.words()) and word in words_in_query:
-                        print(word)
-                        case_summary_bolded.append('<strong>'+word+'</strong>')
+                        # print(word)
+                        case_summary_bolded.append('<b>'+word+'</b>')
                     else:
                         case_summary_bolded.append(word)
                         
