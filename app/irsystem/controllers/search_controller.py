@@ -127,15 +127,18 @@ def search():
         res = []
         for k in range(25):
             e = data[index_to_posts_id[sim_posts[k][1]]]
-            e.update({"score": round(sim_posts[k][0], 3)})
+            e.update({"score": round(sim_posts[k][0], 1)})
             res.append(e)
         print('added results')
         # =====Reddit cos processing END=========
         print('retrieved reddit cases')
         # =====CaseLaw Retrieval=====
         print('begin caselaw retrieval')
+        start = time.time()
         caselaw, debug_msg = rank_cases(
             query, jurisdiction=jurisdiction, earlydate=minimum_date)
+        end = time.time()
+        print('Case retrieval Time elapsed: ', str(end - start))
         error = False
         if not caselaw:
             # API call to CAP failed
@@ -144,12 +147,12 @@ def search():
             judgment_rec="Case Law Error Encountered."
         else:
             caseresults = caselaw
+            words_in_query = word_tokenize(query)
+            words_in_query = set(words_in_query)
             # Score to keep to 3 decimals
             for case in caseresults:
                 case['score'] = round(case['score'] * 100.0, 3)
-                case['fulltext'] = case['case_summary']
             # caseresults = wrap_summary(caseresults)
-            for case in caseresults:
                 if not case['case_summary']:  # if case has no summary
                     case['case_summary'] = "No case summary found"
                     continue
@@ -159,9 +162,9 @@ def search():
                     case['case_summary'] = case['case_summary'] + '...'
                 
                 #Ian's Bold code
+                start = time.time()
                 case_summary_bolded = []
-                words_in_case = word_tokenize(case['case_summary'])
-                words_in_query = word_tokenize(query)
+                words_in_case = word_tokenize(case['case_summary'])                
                 for word in words_in_case:
                     if not (word in string.punctuation or word in stopwords.words()) and word in words_in_query:
                         # print(word)
@@ -170,6 +173,8 @@ def search():
                         case_summary_bolded.append(word)
                         
                 case['case_summary'] = TreebankWordDetokenizer().detokenize(case_summary_bolded)
+                end = time.time()
+                print('Bolding Iteration Time elapsed: ', str(end - start))
             # calculate judgment score
             judgment_score = 0
             judgment_rec = ""
