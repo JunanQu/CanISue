@@ -111,6 +111,7 @@
                     class="textbox-n scd_col" type="text" onfocus="(this.type='date')" onblur="(this.type='text')"
                     id="earliestdate" name="earliestdate">
                 <!-- Dropdown Menu for States -->
+                <label style="width:auto;">Jurisdiction Area:</label>
                 <select style="width: auto; margin-left:10px; margin-right: 0;" class="" id="jurisdisction"
                     name="state">
                     <option value="all">All Jurisdictions</option>
@@ -197,9 +198,9 @@
             Case results API is currently down
         </p>
         {% else %}
-        <div style="width:45%; height:50px; display:inline-block; margin-left: 5%;">
-            <center><h2 style="white-space: pre">Verdict: {{judgment_rec}}</h2></center>
-        </div>
+        <center>
+            <h2 style="white-space: pre">Verdict: {{judgment_rec}}</h2>
+        </center><br>
         <div
             style="overflow: auto; width:45%; height:800px; display:inline-block; margin-left: 5%; border: 5px solid black; float: left;">
             <div class=" container" style="text-align: center; width:95%">
