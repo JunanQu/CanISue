@@ -66,7 +66,7 @@ def get_court_jurisdictions():
     return {court['full_name']: jurisdictions[court['jurisdiction']] for court in courts}
 
 
-def rank_cases(query: str, stem_tokens=False, jurisdiction='', earlydate='', ncases=10):
+def rank_cases(query: str, stem_tokens=False, jurisdiction='', earlydate='', ncases=25):
     """
     Finds cases relevant to query from CAP API based on the similarity of the
     case summary to the query. Cases are then ranked by tfidf cosine similarity
@@ -104,7 +104,7 @@ def rank_cases(query: str, stem_tokens=False, jurisdiction='', earlydate='', nca
 
         # limit to 2 requests (200 cases) because that should be more than enough
         i = 1
-        while response['next'] and i < 2:
+        while response['next'] and i < 3:
             response = utils.get_request_caselaw(response['next']).json()
             cases.extend(response['results'])
             i += 1
@@ -259,11 +259,11 @@ def rank_cases(query: str, stem_tokens=False, jurisdiction='', earlydate='', nca
                         # threshold at 0.2 **for trial cases** to verify 'dismissed' is said near the end (last 20% of opinion)
                         case_outcomes.append("defendant")
                     else:
-                        case_outcomes.append("unknown")
+                        case_outcomes.append("unclear")
 
         # Part 3: For appeal cases, adjust original decision based on appeal outcome
 
-        if case_juris == "appeal" and case_outcomes[-1] != "unknown":
+        if case_juris == "appeal" and case_outcomes[-1] != "unclear":
             if appeal_outcomes[-1] == "negative":
                 case_outcomes[-1] = ("plaintiff" if case_outcomes[-1].lower()
                                      == "defendant" else "defendant")
@@ -275,7 +275,7 @@ def rank_cases(query: str, stem_tokens=False, jurisdiction='', earlydate='', nca
         debug_message = "No cases found that meet the searching criteria!"
 
         return (None, debug_message)
-    model = Doc2Vec(documents, vector_size=5, window=2, min_count=1, workers=4)
+    model = Doc2Vec(documents, vector_size=4, window=2, min_count=1, workers=4)
     updated_query = model.infer_vector([query])
     sims = model.docvecs.most_similar([updated_query], topn=ncases)
 
