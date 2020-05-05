@@ -1,6 +1,7 @@
 # Can I Sue? 
 Team: Max Chen, Nikhil Saggi, Zachary Shine, Junan Qu, Ian Paul
 
+## URL to the app: http://canisue.intellegostudio.com:8080/
 
 Can I Sue is an application intended to help users make more informed legal decisions. Can I Sue leverages data from Harvard's Caselaw Access Project API (CAPAPI) as well as Reddit's legaladvice' subreddit (r/legaladvice). The cases retrieved from CAPAPI are meant to provide Can I Sue's users with insight into what sort of legal precedences have been set by past lawsuits, whereas r/legaladvice is meant to provide users with a means of seeking out helpful discussions that people with similar experiences have had.
 
