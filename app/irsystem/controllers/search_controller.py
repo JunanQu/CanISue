@@ -150,6 +150,7 @@ def search():
             words_in_query = word_tokenize(query)
             words_in_query = set(words_in_query)
             # Score to keep to 3 decimals
+            i = 0
             for case in caseresults:
                 case['score'] = round(case['score'] * 100.0, 3)
             # caseresults = wrap_summary(caseresults)
@@ -162,19 +163,21 @@ def search():
                     case['case_summary'] = case['case_summary'] + '...'
                 
                 #Ian's Bold code
-                start = time.time()
-                case_summary_bolded = []
-                words_in_case = word_tokenize(case['case_summary'])                
-                for word in words_in_case:
-                    if not (word in string.punctuation or word in stopwords.words()) and word in words_in_query:
-                        # print(word)
-                        case_summary_bolded.append('<b>'+word+'</b>')
-                    else:
-                        case_summary_bolded.append(word)
-                        
-                case['case_summary'] = TreebankWordDetokenizer().detokenize(case_summary_bolded)
-                end = time.time()
-                print('Bolding Iteration Time elapsed: ', str(end - start))
+                if i < int(ncases):
+                    start = time.time()
+                    case_summary_bolded = []
+                    words_in_case = word_tokenize(case['case_summary'])                
+                    for word in words_in_case:
+                        if not (word in string.punctuation or word in stopwords.words()) and word in words_in_query:
+                            # print(word)
+                            case_summary_bolded.append('<b>'+word+'</b>')
+                        else:
+                            case_summary_bolded.append(word)
+                            
+                    case['case_summary'] = TreebankWordDetokenizer().detokenize(case_summary_bolded)
+                    end = time.time()
+                    print('Bolding Iteration Time elapsed: ', str(end - start))
+                    i += 1
             # calculate judgment score
             judgment_score = 0
             judgment_rec = ""
