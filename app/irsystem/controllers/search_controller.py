@@ -85,6 +85,9 @@ def search():
         print('no query')
         return render_template('search.html', name=project_name, netid=net_id, output_message=output_message, data=res)
     else:
+        query = query.lower()
+        query = query.translate(str.maketrans('', '', string.punctuation))
+        print('preprocessed query')
         # =====Reddit cos processing START=========
         # title, id, selftext, url, created_utc e60m7
         num_posts = len(data)
