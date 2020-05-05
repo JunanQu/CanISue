@@ -159,8 +159,7 @@ def search():
                     continue
                 case['case_summary'] = case['case_summary'][0:min(
                     1000, len(case['case_summary']))]
-                if len(case['case_summary']) == 1000:
-                    case['case_summary'] = case['case_summary'] + '...'
+                case['case_summary'] = case['case_summary'] + '...'
                 
                 #Ian's Bold code
                 if i < int(ncases):
