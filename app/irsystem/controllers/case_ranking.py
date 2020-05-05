@@ -66,7 +66,7 @@ def get_court_jurisdictions():
     return {court['full_name']: jurisdictions[court['jurisdiction']] for court in courts}
 
 
-def rank_cases(query: str, stem_tokens=False, jurisdiction='', earlydate='', ncases=10):
+def rank_cases(query: str, stem_tokens=False, jurisdiction='', earlydate='', ncases=25):
     """
     Finds cases relevant to query from CAP API based on the similarity of the
     case summary to the query. Cases are then ranked by tfidf cosine similarity

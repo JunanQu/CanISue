@@ -176,6 +176,10 @@
                     <option value="no">Being sued</option>
                 </select>
             </div>
+            <div class="scd_col">
+                <label style="width:auto;">Number of Documents</label>
+                <input type="number" id="quantity" name="quantity" min="1" max="25" value ="5" >
+            </div>
         </div>
 
         <br>
@@ -206,7 +210,7 @@
             <div class=" container" style="text-align: center; width:95%">
                 <h1 style="white-space: pre">{{caselaw_message}}</h1>
                 <div class="feature-inner row">
-                    {% for d in range(casedata|length) %}
+                    {% for d in range(document.getElementById("quantity").value) %}
                     <div class="feature-item" style="border-color:black;border-style: solid; margin-bottom: 10px;">
                         <i class="ti-crown" style="padding-top: 5px;"></i>
                         <h5>
@@ -249,7 +253,7 @@
             <div class="container" style="text-align: center; width:95%">
                 <h1 style="white-space: pre;">{{output_message}}</h1>
                 <div class="feature-inner row">
-                    {% for d in range(data|length) %}
+                    {% for d in range(document.getElementById("quantity").value) %}
                     <div class="feature-item" style="border-color:black;border-style: solid; margin-bottom: 10px;">
                         <i class="ti-crown" style="padding-top: 5px;"></i>
                         <h4>{{data[d].title}}</h4>

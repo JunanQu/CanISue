@@ -122,7 +122,7 @@ def search():
         status = 50
 
         res = []
-        for k in range(10):
+        for k in range(25):
             e = data[index_to_posts_id[sim_posts[k][1]]]
             e.update({"score": round(sim_posts[k][0], 3)})
             res.append(e)
@@ -140,7 +140,7 @@ def search():
             error = True
             judgment_rec="Case Law Error Encountered."
         else:
-            caseresults = caselaw[0:5]
+            caseresults = caselaw
             # Score to keep to 3 decimals
             for case in caseresults:
                 case['score'] = round(case['score'] * 100.0, 3)
@@ -205,7 +205,7 @@ def search():
         # ============================
 
         return render_template('search.html', name=project_name, netid=net_id,
-                               output_message=output_message, data=res[:5], casedata=caseresults,
+                               output_message=output_message, data=res[:25], casedata=caseresults,
                                caselaw_message=caselaw_message,
                                user_query=query, debug_message=debug_msg,
                                judgment_rec=judgment_rec,
