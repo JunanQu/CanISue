@@ -103,13 +103,17 @@
             <input id=" input" style="width: 23vmax;" type="text" name="search" class="form-control"
                 placeholder="Search Cases">
             {% endif %}
-            <button type="submit" class="about_btn"> Search </button>
+            <button type="submit" class="about_btn" style="padding: 3px 24px;"> Search </button>
             <!-- <input type="date" id="test" name="test" placeholder="Earliest Case Date"> -->
             <div class="scd_col">
-                <label style="width:auto;">Earliest Case Date:</label>
-                <input style="text-align: center; margin-right: 0;" placeholder="Any Date Range"
-                    class="textbox-n scd_col" type="text" onfocus="(this.type='date')" onblur="(this.type='text')"
-                    id="earliestdate" name="earliestdate">
+                <label style="width:auto;">Earliest Case Date:
+                        <input style="text-align: center; margin-right: 0;" placeholder="Any Date Range"
+                        type="text" onfocus="(this.type='date')" onblur="(this.type='text')"
+                        id="earliestdate" name="earliestdate">
+                </label>
+                
+            </div>
+            <div class="scd_col">
                 <!-- Dropdown Menu for States -->
                 <label style="width:auto;">Jurisdiction Area:</label>
                 <select style="width: auto; margin-left:10px; margin-right: 0;" class="" id="jurisdisction"
@@ -169,7 +173,7 @@
                     <option value="wyo">Wyoming</option>
                 </select>
             </div>
-            <div class=".scd_col">
+            <div class="scd_col">
                 <label style="width:auto;">Suing or being sued?</label>
                 <select style="width: auto; margin-left:10px; margin-right: 0;" class="" id="suing" name="sue-status">
                     <option value="yes">Suing</option>

@@ -182,11 +182,11 @@ def search():
                 judgment_score *= -1
 
             if judgment_score >= -score_limit and judgment_score < -score_limit/4:
-                judgment_rec = "Likely to lose! (With {}% confidence)".format(confidence)
+                judgment_rec = "Likely to lose! (with {}% confidence)".format(confidence)
             elif judgment_score >= -score_limit/4 and judgment_score <= score_limit/4:
-                judgment_rec = "Could go either way (With {}% confidence)".format(confidence)
+                judgment_rec = "Could go either way (with {}% confidence)".format(confidence)
             elif judgment_score > score_limit/4 and judgment_score <= score_limit:
-                judgment_rec = "Likely to win! With ({}% confidence)".format(confidence)
+                judgment_rec = "Likely to win! with ({}% confidence)".format(confidence)
             
             for case in caseresults:
                 case['case_outcome'] = case['case_outcome'][0].capitalize() + case['case_outcome'][1:]
