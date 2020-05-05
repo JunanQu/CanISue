@@ -93,16 +93,8 @@
 
 
         <div class="form-group" style="">
-            {% if user_query %}
-            <!-- If this is a search result, auto fill in the user's query -->
-
-
-            <input id="input" style="width: 23vmax;" type="text" name="search" class="form-control"
-                placeholder="{{user_query}}">
-            {%else %}
-            <input id=" input" style="width: 23vmax;" type="text" name="search" class="form-control"
+            <input id=" input" style="width: 23vmax; margin-bottom: 0px;" type="text" name="search" class="form-control"
                 placeholder="Search Cases">
-            {% endif %}
             <button type="submit" class="about_btn" style="padding: 3px 24px;"> Search </button>
             <!-- <input type="date" id="test" name="test" placeholder="Earliest Case Date"> -->
             <div class="scd_col">
@@ -181,7 +173,7 @@
                 </select>
             </div>
             <div class="scd_col">
-                <label style="width:auto;">Number of Documents</label>
+                <label style="width:auto;">Number of Documents:</label>
                 <input type="number" id="quantity" name="quantity" min="1" max="25" value="5">
             </div>
         </div>
@@ -191,7 +183,7 @@
         <center>
             <div class="alert-disclaimer">
                 <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-                Disclaimer: The <i>Can I Sue?</i> team is not responsible for any legal decisions made by its users.
+                Disclaimer: The <i>Can I Sue?</i> team is NOT responsible for any legal decisions or repercussions involving it's users.
             </div>
         </center>
         {% endif %}
