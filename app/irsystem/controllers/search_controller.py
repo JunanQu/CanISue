@@ -143,7 +143,7 @@ def search():
             caseresults = caselaw[0:5]
             # Score to keep to 3 decimals
             for case in caseresults:
-                case['score'] = round(case['score'], 3) * 100
+                case['score'] = round(case['score'] * 100.0, 3)
                 case['fulltext'] = case['case_summary']
             # caseresults = wrap_summary(caseresults)
             for case in caseresults:
