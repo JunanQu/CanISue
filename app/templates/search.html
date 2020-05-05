@@ -219,7 +219,10 @@
                         <br>
                         <div class="wow fadeIn" data-wow-duration="1s" data-wow-delay=".1s">
                             <p>
-                                {{casedata[d].case_summary|safe}}
+                                {% autoescape on %}
+                                <span>{{casedata[d].case_summary|safe}}</span>
+                                {% endautoescape %}
+
                             </p>
 
                             <p>
