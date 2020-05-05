@@ -178,7 +178,7 @@
             </div>
             <div class="scd_col">
                 <label style="width:auto;">Number of Documents</label>
-                <input type="number" id="quantity" name="quantity" min="1" max="25" value ="5" >
+                <input type="number" id="quantity" name="quantity" min="1" max="25" value="5">
             </div>
         </div>
 
@@ -210,7 +210,7 @@
             <div class=" container" style="text-align: center; width:95%">
                 <h1 style="white-space: pre">{{caselaw_message}}</h1>
                 <div class="feature-inner row">
-                    {% for d in range(document.getElementById("quantity").value) %}
+                    {% for d in range(num_cases) %}
                     <div class="feature-item" style="border-color:black;border-style: solid; margin-bottom: 10px;">
                         <i class="ti-crown" style="padding-top: 5px;"></i>
                         <h5>
@@ -219,7 +219,7 @@
                         <br>
                         <div class="wow fadeIn" data-wow-duration="1s" data-wow-delay=".1s">
                             <p>
-                                {{casedata[d].case_summary}}
+                                {{casedata[d].case_summary|safe}}
                             </p>
 
                             <p>
@@ -253,7 +253,7 @@
             <div class="container" style="text-align: center; width:95%">
                 <h1 style="white-space: pre;">{{output_message}}</h1>
                 <div class="feature-inner row">
-                    {% for d in range(document.getElementById("quantity").value) %}
+                    {% for d in range(num_cases) %}
                     <div class="feature-item" style="border-color:black;border-style: solid; margin-bottom: 10px;">
                         <i class="ti-crown" style="padding-top: 5px;"></i>
                         <h4>{{data[d].title}}</h4>

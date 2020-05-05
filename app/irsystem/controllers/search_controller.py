@@ -71,6 +71,7 @@ def search():
     jurisdiction = request.args.get('state')
     minimum_date = request.args.get('earliestdate')
     suing = request.args.get('sue-status')
+    ncases = request.args.get('quantity')
     print(query)
     print(jurisdiction)
     print(minimum_date)
@@ -209,7 +210,7 @@ def search():
                                caselaw_message=caselaw_message,
                                user_query=query, debug_message=debug_msg,
                                judgment_rec=judgment_rec,
-                               is_error=error)
+                               is_error=error, num_cases=ncases)
 
 
 @irsystem.route('/about', methods=['GET'])
